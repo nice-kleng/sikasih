@@ -25,6 +25,7 @@ class PuskesmasPanelProvider extends PanelProvider
         return $panel
             ->id('puskesmas')
             ->path('puskesmas')
+            ->login()
             ->colors([
                 'primary' => Color::Pink,
             ])
