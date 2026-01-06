@@ -13,7 +13,7 @@
 
                     <x-filament::button color="success" wire:click="export">
                         <x-heroicon-o-arrow-down-tray class="w-5 h-5 mr-2" />
-                        Export Excel
+                        Export
                     </x-filament::button>
                 </div>
             </form>

@@ -6,13 +6,20 @@ use App\Models\IbuHamil;
 use App\Models\PemeriksaanAnc;
 use App\Models\SkriningRisiko;
 use App\Models\TenagaKesehatan;
+use App\Exports\LaporanRingkasanExport;
+use App\Exports\LaporanIbuHamilExport;
+use App\Exports\LaporanPemeriksaanAncExport;
+use App\Exports\LaporanSkriningRisikoExport;
 use Filament\Pages\Page;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Radio;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Form;
 use Filament\Notifications\Notification;
+use Maatwebsite\Excel\Facades\Excel;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class Laporan extends Page implements HasForms
 {
@@ -36,6 +43,7 @@ class Laporan extends Page implements HasForms
             'periode_dari' => now()->startOfMonth(),
             'periode_sampai' => now(),
             'jenis_laporan' => 'ringkasan',
+            'format_export' => 'excel',
         ]);
 
         $this->loadStatistik();
@@ -58,15 +66,25 @@ class Laporan extends Page implements HasForms
                 Select::make('jenis_laporan')
                     ->label('Jenis Laporan')
                     ->options([
+                        'ringkasan' => 'Laporan Ringkasan',
+                        'ibu_hamil' => 'Laporan Ibu Hamil',
                         'pemeriksaan_anc' => 'Laporan Pemeriksaan ANC',
                         'skrining_risiko' => 'Laporan Skrining Risiko',
-                        'ibu_hamil' => 'Laporan Ibu Hamil',
-                        'ringkasan' => 'Laporan Ringkasan',
                     ])
-                    ->default('ringkasan'),
+                    ->default('ringkasan')
+                    ->required(),
+                Radio::make('format_export')
+                    ->label('Format Export')
+                    ->options([
+                        'excel' => 'Excel (.xlsx)',
+                        'pdf' => 'PDF (.pdf)',
+                    ])
+                    ->default('excel')
+                    ->inline()
+                    ->required(),
             ])
             ->statePath('data')
-            ->columns(3);
+            ->columns(4);
     }
 
     public function loadStatistik(): void
@@ -142,17 +160,109 @@ class Laporan extends Page implements HasForms
             ->send();
     }
 
-    public function export(): void
+    public function export()
     {
         $jenis = $this->data['jenis_laporan'] ?? 'ringkasan';
+        $format = $this->data['format_export'] ?? 'excel';
+
+        $user = auth()->user();
+        $puskesmasId = $user->puskesmas?->id ?? $user->tenagaKesehatan?->puskesmas_id;
+        $puskesmas = \App\Models\Puskesmas::find($puskesmasId);
+
+        $periode = [
+            'dari' => $this->data['periode_dari'] ?? now()->startOfMonth(),
+            'sampai' => $this->data['periode_sampai'] ?? now(),
+        ];
+
+        $filename = 'laporan-' . $jenis . '-' . now()->format('Y-m-d-His');
+
+        try {
+            if ($format === 'excel') {
+                return $this->exportExcel($jenis, $puskesmasId, $puskesmas, $periode, $filename);
+            } else {
+                return $this->exportPdf($jenis, $puskesmasId, $puskesmas, $periode, $filename);
+            }
+        } catch (\Exception $e) {
+            Notification::make()
+                ->title('Export Gagal!')
+                ->danger()
+                ->body('Terjadi kesalahan: ' . $e->getMessage())
+                ->send();
+        }
+    }
+
+    protected function exportExcel($jenis, $puskesmasId, $puskesmas, $periode, $filename)
+    {
+        $export = match ($jenis) {
+            'ringkasan' => new LaporanRingkasanExport($this->statistik, $puskesmas, $periode),
+            'ibu_hamil' => new LaporanIbuHamilExport($puskesmasId, $periode),
+            'pemeriksaan_anc' => new LaporanPemeriksaanAncExport($puskesmasId, $periode),
+            'skrining_risiko' => new LaporanSkriningRisikoExport($puskesmasId, $periode),
+            default => new LaporanRingkasanExport($this->statistik, $puskesmas, $periode),
+        };
 
         Notification::make()
             ->title('Export Berhasil!')
             ->success()
-            ->body("Laporan {$jenis} berhasil di-export!")
+            ->body('Laporan Excel berhasil di-download!')
             ->send();
 
-        // TODO: Implement actual export functionality
-        // Example: return Excel::download(new LaporanExport($this->statistik), 'laporan.xlsx');
+        return Excel::download($export, $filename . '.xlsx');
+    }
+
+    protected function exportPdf($jenis, $puskesmasId, $puskesmas, $periode, $filename)
+    {
+        $view = match ($jenis) {
+            'ringkasan' => 'pdf.laporan-ringkasan',
+            'ibu_hamil' => 'pdf.laporan-ibu-hamil',
+            'pemeriksaan_anc' => 'pdf.laporan-pemeriksaan-anc',
+            'skrining_risiko' => 'pdf.laporan-skrining-risiko',
+            default => 'pdf.laporan-ringkasan',
+        };
+
+        $data = [
+            'statistik' => $this->statistik,
+            'puskesmas' => $puskesmas,
+            'periode' => $periode,
+        ];
+
+        // Add specific data based on report type
+        if ($jenis === 'ibu_hamil') {
+            $data['dataIbuHamil'] = IbuHamil::where('puskesmas_id', $puskesmasId)
+                ->where('status_kehamilan', 'hamil')
+                ->whereBetween('created_at', [$periode['dari'], $periode['sampai']])
+                ->with(['puskesmas'])
+                ->orderBy('created_at', 'desc')
+                ->get();
+        } elseif ($jenis === 'pemeriksaan_anc') {
+            $data['dataPemeriksaan'] = PemeriksaanAnc::where('puskesmas_id', $puskesmasId)
+                ->whereBetween('tanggal_pemeriksaan', [$periode['dari'], $periode['sampai']])
+                ->with(['ibuHamil', 'tenagaKesehatan.user'])
+                ->orderBy('tanggal_pemeriksaan', 'desc')
+                ->get();
+        } elseif ($jenis === 'skrining_risiko') {
+            $data['dataSkrining'] = SkriningRisiko::where('puskesmas_id', $puskesmasId)
+                ->whereBetween('tanggal_skrining', [$periode['dari'], $periode['sampai']])
+                ->with(['ibuHamil', 'tenagaKesehatan.user'])
+                ->orderBy('tanggal_skrining', 'desc')
+                ->get();
+        }
+
+        $pdf = Pdf::loadView($view, $data)
+            ->setPaper('a4', 'portrait')
+            ->setOption('margin-top', 10)
+            ->setOption('margin-bottom', 10)
+            ->setOption('margin-left', 10)
+            ->setOption('margin-right', 10);
+
+        Notification::make()
+            ->title('Export Berhasil!')
+            ->success()
+            ->body('Laporan PDF berhasil di-download!')
+            ->send();
+
+        return response()->streamDownload(function () use ($pdf) {
+            echo $pdf->output();
+        }, $filename . '.pdf');
     }
 }
