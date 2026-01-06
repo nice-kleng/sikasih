@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\HasilLaboratoriumResource\Pages;
 use App\Filament\Resources\HasilLaboratoriumResource\RelationManagers;
 use App\Models\HasilLaboratorium;
+use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -13,11 +14,23 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
-class HasilLaboratoriumResource extends Resource
+class HasilLaboratoriumResource extends Resource implements HasShieldPermissions
 {
     protected static ?string $model = HasilLaboratorium::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+
+    public static function getPermissionPrefixes(): array
+    {
+        return [
+            'view',
+            'view_any',
+            'create',
+            'update',
+            'delete',
+            'delete_any',
+        ];
+    }
 
     public static function form(Form $form): Form
     {

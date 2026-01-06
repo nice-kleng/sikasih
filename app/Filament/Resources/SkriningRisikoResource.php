@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\SkriningRisikoResource\Pages;
 use App\Models\SkriningRisiko;
+use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -12,7 +13,7 @@ use Filament\Tables\Table;
 use Filament\Infolists;
 use Filament\Infolists\Infolist;
 
-class SkriningRisikoResource extends Resource
+class SkriningRisikoResource extends Resource implements HasShieldPermissions
 {
     protected static ?string $model = SkriningRisiko::class;
 
@@ -27,6 +28,18 @@ class SkriningRisikoResource extends Resource
     protected static ?string $modelLabel = 'Skrining Risiko';
 
     protected static ?string $pluralModelLabel = 'Skrining Risiko';
+
+    public static function getPermissionPrefixes(): array
+    {
+        return [
+            'view',
+            'view_any',
+            'create',
+            'update',
+            'delete',
+            'delete_any',
+        ];
+    }
 
     public static function form(Form $form): Form
     {

@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\PuskesmasResource\Pages;
 use App\Models\Puskesmas;
 use App\Models\User;
+use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -12,7 +13,7 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Support\Facades\Hash;
 
-class PuskesmasResource extends Resource
+class PuskesmasResource extends Resource implements HasShieldPermissions
 {
     protected static ?string $model = Puskesmas::class;
 
@@ -27,6 +28,18 @@ class PuskesmasResource extends Resource
     protected static ?string $modelLabel = 'Puskesmas';
 
     protected static ?string $pluralModelLabel = 'Puskesmas';
+
+    public static function getPermissionPrefixes(): array
+    {
+        return [
+            'view',
+            'view_any',
+            'create',
+            'update',
+            'delete',
+            'delete_any',
+        ];
+    }
 
     public static function form(Form $form): Form
     {

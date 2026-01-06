@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\PemeriksaanAncResource\Pages;
 use App\Models\PemeriksaanAnc;
+use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -12,7 +13,7 @@ use Filament\Tables\Table;
 use Filament\Infolists;
 use Filament\Infolists\Infolist;
 
-class PemeriksaanAncResource extends Resource
+class PemeriksaanAncResource extends Resource implements HasShieldPermissions
 {
     protected static ?string $model = PemeriksaanAnc::class;
 
@@ -27,6 +28,17 @@ class PemeriksaanAncResource extends Resource
     protected static ?string $modelLabel = 'Pemeriksaan ANC';
 
     protected static ?string $pluralModelLabel = 'Pemeriksaan ANC';
+
+    public static function getPermissionPrefixes(): array
+    {
+        return [
+            'view',
+            'view_any',
+            'create',
+            'update',
+            'delete',
+        ];
+    }
 
     public static function form(Form $form): Form
     {
@@ -380,11 +392,26 @@ class PemeriksaanAncResource extends Resource
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make(),
+                // Edit action with 24-hour rule check
+                Tables\Actions\EditAction::make()
+                    ->visible(function (PemeriksaanAnc $record) {
+                        // Check custom gate for 24h rule
+                        return auth()->user()->can('update_pemeriksaan_within_24h', $record);
+                    }),
+
+                // Delete action - only puskesmas and super_admin
+                Tables\Actions\DeleteAction::make()
+                    ->visible(function (PemeriksaanAnc $record) {
+                        return auth()->user()->can('delete_pemeriksaan_anc', $record);
+                    }),
             ])
             ->bulkActions([
+                // Tables\Actions\BulkActionGroup::make([
+                //     Tables\Actions\DeleteBulkAction::make(),
+                // ]),
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                    Tables\Actions\DeleteBulkAction::make()
+                        ->visible(fn() => auth()->user()->hasAnyRole(['super_admin', 'puskesmas'])),
                 ]),
             ])
             ->defaultSort('tanggal_pemeriksaan', 'desc');

@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\KonsultasiResource\Pages;
 use App\Filament\Resources\KonsultasiResource\RelationManagers;
 use App\Models\Konsultasi;
+use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -13,11 +14,23 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
-class KonsultasiResource extends Resource
+class KonsultasiResource extends Resource implements HasShieldPermissions
 {
     protected static ?string $model = Konsultasi::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+
+    public static function getPermissionPrefixes(): array
+    {
+        return [
+            'view',
+            'view_any',
+            'create',
+            'update',
+            'delete',
+            'delete_any',
+        ];
+    }
 
     public static function form(Form $form): Form
     {

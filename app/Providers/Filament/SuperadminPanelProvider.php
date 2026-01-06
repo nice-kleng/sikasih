@@ -24,8 +24,8 @@ class SuperadminPanelProvider extends PanelProvider
     {
         return $panel
             ->default()
-            ->id('superadmin')
-            ->path('superadmin')
+            ->id('admin')
+            ->path('admin')
             ->login()
             ->colors([
                 'primary' => Color::Pink,
@@ -55,6 +55,9 @@ class SuperadminPanelProvider extends PanelProvider
                 Authenticate::class,
             ])
             ->authGuard('web')
-            ->brandName('SIKASIH - Superadmin');
+            ->brandName('SIKASIH - Superadmin')
+            ->plugins([
+                \BezhanSalleh\FilamentShield\FilamentShieldPlugin::make(),
+            ]);
     }
 }

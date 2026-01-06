@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\ArtikelResource\Pages;
 use App\Models\Artikel;
+use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -11,7 +12,7 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Support\Str;
 
-class ArtikelResource extends Resource
+class ArtikelResource extends Resource implements HasShieldPermissions
 {
     protected static ?string $model = Artikel::class;
 
@@ -26,6 +27,18 @@ class ArtikelResource extends Resource
     protected static ?string $modelLabel = 'Artikel';
 
     protected static ?string $pluralModelLabel = 'Artikel';
+
+    public static function getPermissionPrefixes(): array
+    {
+        return [
+            'view',
+            'view_any',
+            'create',
+            'update',
+            'delete',
+            'delete_any',
+        ];
+    }
 
     public static function form(Form $form): Form
     {

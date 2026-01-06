@@ -5,6 +5,7 @@ namespace App\Filament\Puskesmas\Resources;
 use App\Filament\Puskesmas\Resources\TenagaKesehatanResource\Pages;
 use App\Models\TenagaKesehatan;
 use App\Models\User;
+use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -13,7 +14,7 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Hash;
 
-class TenagaKesehatanResource extends Resource
+class TenagaKesehatanResource extends Resource implements HasShieldPermissions
 {
     protected static ?string $model = TenagaKesehatan::class;
 
@@ -28,6 +29,18 @@ class TenagaKesehatanResource extends Resource
     protected static ?string $modelLabel = 'Tenaga Kesehatan';
 
     protected static ?string $pluralModelLabel = 'Tenaga Kesehatan';
+
+    public static function getPermissionPrefixes(): array
+    {
+        return [
+            'view',
+            'view_any',
+            'create',
+            'update',
+            'delete',
+            'delete_any',
+        ];
+    }
 
     // Data Scoping - hanya tampilkan tenaga kesehatan di puskesmas sendiri
     public static function getEloquentQuery(): Builder

@@ -2,8 +2,10 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Resources\IbuHamilResource\Actions\PrintKartuAction;
 use App\Filament\Resources\IbuHamilResource\Pages;
 use App\Models\IbuHamil;
+use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -12,7 +14,7 @@ use Filament\Tables\Table;
 use Filament\Infolists;
 use Filament\Infolists\Infolist;
 
-class IbuHamilResource extends Resource
+class IbuHamilResource extends Resource implements HasShieldPermissions
 {
     protected static ?string $model = IbuHamil::class;
 
@@ -27,6 +29,18 @@ class IbuHamilResource extends Resource
     protected static ?string $modelLabel = 'Ibu Hamil';
 
     protected static ?string $pluralModelLabel = 'Ibu Hamil';
+
+    public static function getPermissionPrefixes(): array
+    {
+        return [
+            'view',
+            'view_any',
+            'create',
+            'update',
+            'delete',
+            'delete_any',
+        ];
+    }
 
     public static function form(Form $form): Form
     {
@@ -378,6 +392,7 @@ class IbuHamilResource extends Resource
                     }),
             ])
             ->actions([
+                PrintKartuAction::make(),
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
             ])

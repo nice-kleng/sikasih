@@ -4,6 +4,7 @@ namespace App\Filament\Puskesmas\Resources;
 
 use App\Filament\Puskesmas\Resources\IbuHamilResource\Pages;
 use App\Models\IbuHamil;
+use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -11,7 +12,7 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 
-class IbuHamilResource extends Resource
+class IbuHamilResource extends Resource implements HasShieldPermissions
 {
     protected static ?string $model = IbuHamil::class;
 
@@ -27,10 +28,26 @@ class IbuHamilResource extends Resource
 
     protected static ?string $pluralModelLabel = 'Ibu Hamil';
 
+    public static function getPermissionPrefixes(): array
+    {
+        return [
+            'view',
+            'view_any',
+            'create',
+            'update',
+            'delete', // tenaga_kesehatan won't have this
+        ];
+    }
+
     // Scoping: Hanya tampilkan data ibu hamil di puskesmas sendiri
     public static function getEloquentQuery(): Builder
     {
         $query = parent::getEloquentQuery();
+
+        // Super admin bisa lihat semua (bypass scoping)
+        if (auth()->user()->hasRole('super_admin')) {
+            return $query;
+        }
 
         // Get puskesmas_id dari user yang login
         $user = auth()->user();
@@ -427,6 +444,13 @@ class IbuHamilResource extends Resource
     public static function getNavigationBadge(): ?string
     {
         $user = auth()->user();
+
+        // Super admin badge shows all
+        if ($user->hasRole('super_admin')) {
+            return IbuHamil::where('status_kehamilan', 'hamil')->count();
+        }
+
+        // Scoped badge
         $puskesmasId = $user->puskesmas?->id ?? $user->tenagaKesehatan?->puskesmas_id;
 
         return IbuHamil::where('puskesmas_id', $puskesmasId)

@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\TenagaKesehatanResource\Pages;
 use App\Models\TenagaKesehatan;
 use App\Models\User;
+use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -12,7 +13,7 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Support\Facades\Hash;
 
-class TenagaKesehatanResource extends Resource
+class TenagaKesehatanResource extends Resource implements HasShieldPermissions
 {
     protected static ?string $model = TenagaKesehatan::class;
 
@@ -27,6 +28,18 @@ class TenagaKesehatanResource extends Resource
     protected static ?string $modelLabel = 'Tenaga Kesehatan';
 
     protected static ?string $pluralModelLabel = 'Tenaga Kesehatan';
+
+    public static function getPermissionPrefixes(): array
+    {
+        return [
+            'view',
+            'view_any',
+            'create',
+            'update',
+            'delete',
+            'delete_any',
+        ];
+    }
 
     public static function form(Form $form): Form
     {

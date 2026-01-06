@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\VideoEdukasiResource\Pages;
 use App\Models\VideoEdukasi;
+use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -11,7 +12,7 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Support\Str;
 
-class VideoEdukasiResource extends Resource
+class VideoEdukasiResource extends Resource implements HasShieldPermissions
 {
     protected static ?string $model = VideoEdukasi::class;
 
@@ -26,6 +27,18 @@ class VideoEdukasiResource extends Resource
     protected static ?string $modelLabel = 'Video Edukasi';
 
     protected static ?string $pluralModelLabel = 'Video Edukasi';
+
+    public static function getPermissionPrefixes(): array
+    {
+        return [
+            'view',
+            'view_any',
+            'create',
+            'update',
+            'delete',
+            'delete_any',
+        ];
+    }
 
     public static function form(Form $form): Form
     {

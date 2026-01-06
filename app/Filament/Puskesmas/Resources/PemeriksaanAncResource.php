@@ -4,6 +4,7 @@ namespace App\Filament\Puskesmas\Resources;
 
 use App\Filament\Puskesmas\Resources\PemeriksaanAncResource\Pages;
 use App\Models\PemeriksaanAnc;
+use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -11,7 +12,7 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 
-class PemeriksaanAncResource extends Resource
+class PemeriksaanAncResource extends Resource implements HasShieldPermissions
 {
     protected static ?string $model = PemeriksaanAnc::class;
 
@@ -27,10 +28,27 @@ class PemeriksaanAncResource extends Resource
 
     protected static ?string $pluralModelLabel = 'Pemeriksaan ANC';
 
+    public static function getPermissionPrefixes(): array
+    {
+        return [
+            'view',
+            'view_any',
+            'create',
+            'update',
+            'delete', // tenaga_kesehatan won't have this
+        ];
+    }
+
     // Data Scoping
     public static function getEloquentQuery(): Builder
     {
         $query = parent::getEloquentQuery();
+
+        // Super admin bypass
+        if (auth()->user()->hasRole('super_admin')) {
+            return $query;
+        }
+
         $user = auth()->user();
 
         if ($user->puskesmas) {
@@ -355,7 +373,40 @@ class PemeriksaanAncResource extends Resource
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make(),
+                // Edit dengan 24h rule check
+                Tables\Actions\EditAction::make()
+                    ->visible(function (PemeriksaanAnc $record) {
+                        // Use custom gate
+                        return auth()->user()->can('update_pemeriksaan_within_24h', $record);
+                    })
+                    ->tooltip(function (PemeriksaanAnc $record) {
+                        $user = auth()->user();
+
+                        // Show tooltip for tenaga kesehatan
+                        if (
+                            $user->tenagaKesehatan &&
+                            $record->tenaga_kesehatan_id === $user->tenagaKesehatan->id
+                        ) {
+
+                            $hoursAgo = $record->created_at->diffInHours(now());
+
+                            if ($hoursAgo >= 24) {
+                                return 'Hanya dapat diedit dalam 24 jam pertama';
+                            }
+
+                            $hoursLeft = 24 - $hoursAgo;
+                            return "Dapat diedit {$hoursLeft} jam lagi";
+                        }
+
+                        return null;
+                    }),
+
+                // Delete - only puskesmas
+                Tables\Actions\DeleteAction::make()
+                    ->visible(
+                        fn(PemeriksaanAnc $record) =>
+                        auth()->user()->can('delete_pemeriksaan_anc', $record)
+                    ),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -382,9 +433,24 @@ class PemeriksaanAncResource extends Resource
         ];
     }
 
+    // public static function getNavigationBadge(): ?string
+    // {
+    //     $user = auth()->user();
+    //     $puskesmasId = $user->puskesmas?->id ?? $user->tenagaKesehatan?->puskesmas_id;
+
+    //     return PemeriksaanAnc::where('puskesmas_id', $puskesmasId)
+    //         ->whereMonth('tanggal_pemeriksaan', now()->month)
+    //         ->count();
+    // }
+
     public static function getNavigationBadge(): ?string
     {
         $user = auth()->user();
+
+        if ($user->hasRole('super_admin')) {
+            return PemeriksaanAnc::whereMonth('tanggal_pemeriksaan', now()->month)->count();
+        }
+
         $puskesmasId = $user->puskesmas?->id ?? $user->tenagaKesehatan?->puskesmas_id;
 
         return PemeriksaanAnc::where('puskesmas_id', $puskesmasId)

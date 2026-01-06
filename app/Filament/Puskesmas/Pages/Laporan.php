@@ -12,6 +12,7 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Form;
+use Filament\Notifications\Notification;
 
 class Laporan extends Page implements HasForms
 {
@@ -34,6 +35,7 @@ class Laporan extends Page implements HasForms
         $this->form->fill([
             'periode_dari' => now()->startOfMonth(),
             'periode_sampai' => now(),
+            'jenis_laporan' => 'ringkasan',
         ]);
 
         $this->loadStatistik();
@@ -46,11 +48,13 @@ class Laporan extends Page implements HasForms
                 DatePicker::make('periode_dari')
                     ->label('Periode Dari')
                     ->required()
-                    ->native(false),
+                    ->native(false)
+                    ->default(now()->startOfMonth()),
                 DatePicker::make('periode_sampai')
                     ->label('Periode Sampai')
                     ->required()
-                    ->native(false),
+                    ->native(false)
+                    ->default(now()),
                 Select::make('jenis_laporan')
                     ->label('Jenis Laporan')
                     ->options([
@@ -131,14 +135,24 @@ class Laporan extends Page implements HasForms
     {
         $this->loadStatistik();
 
-        $this->notify('success', 'Laporan berhasil di-generate!');
+        Notification::make()
+            ->title('Berhasil!')
+            ->success()
+            ->body('Laporan berhasil di-generate!')
+            ->send();
     }
 
     public function export(): void
     {
         $jenis = $this->data['jenis_laporan'] ?? 'ringkasan';
 
-        // Implementasi export sesuai jenis laporan
-        $this->notify('success', "Laporan {$jenis} berhasil di-export!");
+        Notification::make()
+            ->title('Export Berhasil!')
+            ->success()
+            ->body("Laporan {$jenis} berhasil di-export!")
+            ->send();
+
+        // TODO: Implement actual export functionality
+        // Example: return Excel::download(new LaporanExport($this->statistik), 'laporan.xlsx');
     }
 }
