@@ -250,7 +250,7 @@ class KesehatanController extends Controller
         if (!$ibuHamil) {
             return redirect()->route('app.profil')->with('error', 'Data kehamilan tidak ditemukan.');
         }
-        
+
         $validated = $request->validate([
             'total_skor' => 'required|integer',
             'kategori_risiko' => 'required|in:KRR,KRT,KRST',
@@ -259,9 +259,19 @@ class KesehatanController extends Controller
             'catatan' => 'nullable|string',
         ]);
 
+        // Generate no_skrining
+        $lastSkrining = SkriningRisiko::where('puskesmas_id', $ibuHamil->puskesmas_id)
+            ->latest('id')
+            ->first();
+        $lastNumber = $lastSkrining ? (int) substr($lastSkrining->no_skrining, -4) : 0;
+        $newNumber = str_pad($lastNumber + 1, 4, '0', STR_PAD_LEFT);
+        $noSkrining = 'SKR-' . date('Y') . '-' . $newNumber;
+
         // Create skrining
         $skrining = SkriningRisiko::create([
             'ibu_hamil_id' => auth()->user()->ibuHamil->id,
+            'puskesmas_id' => $ibuHamil->puskesmas_id,
+            'no_skrining' => $noSkrining,
             'tanggal_skrining' => now(),
             'jenis_skrining' => 'mandiri',
             'total_skor' => $validated['total_skor'],
