@@ -132,11 +132,12 @@ class VideoEdukasiResource extends Resource implements HasShieldPermissions
                         Forms\Components\Select::make('status')
                             ->label('Status')
                             ->options([
-                                'active' => 'Active',
-                                'inactive' => 'Inactive',
+                                'archived' => 'Archived',
+                                'draft' => 'Draft',
+                                'published' => 'Published',
                             ])
                             ->required()
-                            ->default('active'),
+                            ->default('draft'),
                         Forms\Components\TextInput::make('views')
                             ->label('Jumlah Views')
                             ->numeric()

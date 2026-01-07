@@ -55,7 +55,7 @@ class PemeriksaanAncPolicy
      */
     public function deleteAny(User $user): bool
     {
-        return $user->can('delete_any_pemeriksaan::anc');
+        return $user->can('{{ DeleteAny }}');
     }
 
     /**
@@ -63,7 +63,7 @@ class PemeriksaanAncPolicy
      */
     public function forceDelete(User $user, PemeriksaanAnc $pemeriksaanAnc): bool
     {
-        return $user->can('force_delete_pemeriksaan::anc');
+        return $user->can('{{ ForceDelete }}');
     }
 
     /**
@@ -71,7 +71,7 @@ class PemeriksaanAncPolicy
      */
     public function forceDeleteAny(User $user): bool
     {
-        return $user->can('force_delete_any_pemeriksaan::anc');
+        return $user->can('{{ ForceDeleteAny }}');
     }
 
     /**
@@ -79,7 +79,7 @@ class PemeriksaanAncPolicy
      */
     public function restore(User $user, PemeriksaanAnc $pemeriksaanAnc): bool
     {
-        return $user->can('restore_pemeriksaan::anc');
+        return $user->can('{{ Restore }}');
     }
 
     /**
@@ -87,7 +87,7 @@ class PemeriksaanAncPolicy
      */
     public function restoreAny(User $user): bool
     {
-        return $user->can('restore_any_pemeriksaan::anc');
+        return $user->can('{{ RestoreAny }}');
     }
 
     /**
@@ -95,7 +95,7 @@ class PemeriksaanAncPolicy
      */
     public function replicate(User $user, PemeriksaanAnc $pemeriksaanAnc): bool
     {
-        return $user->can('replicate_pemeriksaan::anc');
+        return $user->can('{{ Replicate }}');
     }
 
     /**
@@ -103,6 +103,6 @@ class PemeriksaanAncPolicy
      */
     public function reorder(User $user): bool
     {
-        return $user->can('reorder_pemeriksaan::anc');
+        return $user->can('{{ Reorder }}');
     }
 }

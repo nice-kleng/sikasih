@@ -63,7 +63,7 @@ class VideoEdukasiPolicy
      */
     public function forceDelete(User $user, VideoEdukasi $videoEdukasi): bool
     {
-        return $user->can('force_delete_video::edukasi');
+        return $user->can('{{ ForceDelete }}');
     }
 
     /**
@@ -71,7 +71,7 @@ class VideoEdukasiPolicy
      */
     public function forceDeleteAny(User $user): bool
     {
-        return $user->can('force_delete_any_video::edukasi');
+        return $user->can('{{ ForceDeleteAny }}');
     }
 
     /**
@@ -79,7 +79,7 @@ class VideoEdukasiPolicy
      */
     public function restore(User $user, VideoEdukasi $videoEdukasi): bool
     {
-        return $user->can('restore_video::edukasi');
+        return $user->can('{{ Restore }}');
     }
 
     /**
@@ -87,7 +87,7 @@ class VideoEdukasiPolicy
      */
     public function restoreAny(User $user): bool
     {
-        return $user->can('restore_any_video::edukasi');
+        return $user->can('{{ RestoreAny }}');
     }
 
     /**
@@ -95,7 +95,7 @@ class VideoEdukasiPolicy
      */
     public function replicate(User $user, VideoEdukasi $videoEdukasi): bool
     {
-        return $user->can('replicate_video::edukasi');
+        return $user->can('{{ Replicate }}');
     }
 
     /**
@@ -103,6 +103,6 @@ class VideoEdukasiPolicy
      */
     public function reorder(User $user): bool
     {
-        return $user->can('reorder_video::edukasi');
+        return $user->can('{{ Reorder }}');
     }
 }

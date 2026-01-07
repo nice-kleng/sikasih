@@ -53,7 +53,7 @@ class PuskesmasPanelProvider extends PanelProvider
             ->authMiddleware([
                 Authenticate::class,
             ])
-            ->authGuard('web')
+            ->authGuard('filament')
             ->brandName('SIKASIH - Puskesmas');
     }
 }

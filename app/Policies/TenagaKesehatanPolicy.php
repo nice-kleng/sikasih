@@ -63,7 +63,7 @@ class TenagaKesehatanPolicy
      */
     public function forceDelete(User $user, TenagaKesehatan $tenagaKesehatan): bool
     {
-        return $user->can('force_delete_tenaga::kesehatan');
+        return $user->can('{{ ForceDelete }}');
     }
 
     /**
@@ -71,7 +71,7 @@ class TenagaKesehatanPolicy
      */
     public function forceDeleteAny(User $user): bool
     {
-        return $user->can('force_delete_any_tenaga::kesehatan');
+        return $user->can('{{ ForceDeleteAny }}');
     }
 
     /**
@@ -79,7 +79,7 @@ class TenagaKesehatanPolicy
      */
     public function restore(User $user, TenagaKesehatan $tenagaKesehatan): bool
     {
-        return $user->can('restore_tenaga::kesehatan');
+        return $user->can('{{ Restore }}');
     }
 
     /**
@@ -87,7 +87,7 @@ class TenagaKesehatanPolicy
      */
     public function restoreAny(User $user): bool
     {
-        return $user->can('restore_any_tenaga::kesehatan');
+        return $user->can('{{ RestoreAny }}');
     }
 
     /**
@@ -95,7 +95,7 @@ class TenagaKesehatanPolicy
      */
     public function replicate(User $user, TenagaKesehatan $tenagaKesehatan): bool
     {
-        return $user->can('replicate_tenaga::kesehatan');
+        return $user->can('{{ Replicate }}');
     }
 
     /**
@@ -103,6 +103,6 @@ class TenagaKesehatanPolicy
      */
     public function reorder(User $user): bool
     {
-        return $user->can('reorder_tenaga::kesehatan');
+        return $user->can('{{ Reorder }}');
     }
 }

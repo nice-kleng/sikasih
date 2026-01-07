@@ -24,9 +24,9 @@ class DatabaseSeeder extends Seeder
         // 1. CREATE ROLES
         // ============================================
 
-        $superAdminRole = Role::firstOrCreate(['name' => 'super_admin', 'guard_name' => 'web']);
-        $puskesmasRole = Role::firstOrCreate(['name' => 'puskesmas', 'guard_name' => 'web']);
-        $tenagaKesehatanRole = Role::firstOrCreate(['name' => 'tenaga_kesehatan', 'guard_name' => 'web']);
+        $superAdminRole = Role::firstOrCreate(['name' => 'super_admin', 'guard_name' => 'filament']);
+        $puskesmasRole = Role::firstOrCreate(['name' => 'puskesmas', 'guard_name' => 'filament']);
+        $tenagaKesehatanRole = Role::firstOrCreate(['name' => 'tenaga_kesehatan', 'guard_name' => 'filament']);
         $ibuHamilRole = Role::firstOrCreate(['name' => 'ibu_hamil', 'guard_name' => 'web']);
 
         // ============================================

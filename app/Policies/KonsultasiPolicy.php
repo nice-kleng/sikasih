@@ -63,7 +63,7 @@ class KonsultasiPolicy
      */
     public function forceDelete(User $user, Konsultasi $konsultasi): bool
     {
-        return $user->can('force_delete_konsultasi');
+        return $user->can('{{ ForceDelete }}');
     }
 
     /**
@@ -71,7 +71,7 @@ class KonsultasiPolicy
      */
     public function forceDeleteAny(User $user): bool
     {
-        return $user->can('force_delete_any_konsultasi');
+        return $user->can('{{ ForceDeleteAny }}');
     }
 
     /**
@@ -79,7 +79,7 @@ class KonsultasiPolicy
      */
     public function restore(User $user, Konsultasi $konsultasi): bool
     {
-        return $user->can('restore_konsultasi');
+        return $user->can('{{ Restore }}');
     }
 
     /**
@@ -87,7 +87,7 @@ class KonsultasiPolicy
      */
     public function restoreAny(User $user): bool
     {
-        return $user->can('restore_any_konsultasi');
+        return $user->can('{{ RestoreAny }}');
     }
 
     /**
@@ -95,7 +95,7 @@ class KonsultasiPolicy
      */
     public function replicate(User $user, Konsultasi $konsultasi): bool
     {
-        return $user->can('replicate_konsultasi');
+        return $user->can('{{ Replicate }}');
     }
 
     /**
@@ -103,6 +103,6 @@ class KonsultasiPolicy
      */
     public function reorder(User $user): bool
     {
-        return $user->can('reorder_konsultasi');
+        return $user->can('{{ Reorder }}');
     }
 }

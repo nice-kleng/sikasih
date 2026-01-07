@@ -63,7 +63,7 @@ class IbuHamilPolicy
      */
     public function forceDelete(User $user, IbuHamil $ibuHamil): bool
     {
-        return $user->can('force_delete_ibu::hamil');
+        return $user->can('{{ ForceDelete }}');
     }
 
     /**
@@ -71,7 +71,7 @@ class IbuHamilPolicy
      */
     public function forceDeleteAny(User $user): bool
     {
-        return $user->can('force_delete_any_ibu::hamil');
+        return $user->can('{{ ForceDeleteAny }}');
     }
 
     /**
@@ -79,7 +79,7 @@ class IbuHamilPolicy
      */
     public function restore(User $user, IbuHamil $ibuHamil): bool
     {
-        return $user->can('restore_ibu::hamil');
+        return $user->can('{{ Restore }}');
     }
 
     /**
@@ -87,7 +87,7 @@ class IbuHamilPolicy
      */
     public function restoreAny(User $user): bool
     {
-        return $user->can('restore_any_ibu::hamil');
+        return $user->can('{{ RestoreAny }}');
     }
 
     /**
@@ -95,7 +95,7 @@ class IbuHamilPolicy
      */
     public function replicate(User $user, IbuHamil $ibuHamil): bool
     {
-        return $user->can('replicate_ibu::hamil');
+        return $user->can('{{ Replicate }}');
     }
 
     /**
@@ -103,6 +103,6 @@ class IbuHamilPolicy
      */
     public function reorder(User $user): bool
     {
-        return $user->can('reorder_ibu::hamil');
+        return $user->can('{{ Reorder }}');
     }
 }

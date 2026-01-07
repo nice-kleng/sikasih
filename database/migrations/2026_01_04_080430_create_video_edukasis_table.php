@@ -30,7 +30,8 @@ return new class extends Migration
             $table->integer('durasi_detik')->nullable();
             $table->integer('views')->default(0);
             $table->integer('urutan')->default(0); // Untuk sorting
-            $table->enum('status', ['active', 'inactive'])->default('active');
+            $table->enum('status', ['archived', 'draft', 'published'])->default('draft');
+            $table->timestamp('published_at')->nullable();
             $table->timestamps();
             $table->softDeletes();
 

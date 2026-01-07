@@ -63,7 +63,7 @@ class SkriningRisikoPolicy
      */
     public function forceDelete(User $user, SkriningRisiko $skriningRisiko): bool
     {
-        return $user->can('force_delete_skrining::risiko');
+        return $user->can('{{ ForceDelete }}');
     }
 
     /**
@@ -71,7 +71,7 @@ class SkriningRisikoPolicy
      */
     public function forceDeleteAny(User $user): bool
     {
-        return $user->can('force_delete_any_skrining::risiko');
+        return $user->can('{{ ForceDeleteAny }}');
     }
 
     /**
@@ -79,7 +79,7 @@ class SkriningRisikoPolicy
      */
     public function restore(User $user, SkriningRisiko $skriningRisiko): bool
     {
-        return $user->can('restore_skrining::risiko');
+        return $user->can('{{ Restore }}');
     }
 
     /**
@@ -87,7 +87,7 @@ class SkriningRisikoPolicy
      */
     public function restoreAny(User $user): bool
     {
-        return $user->can('restore_any_skrining::risiko');
+        return $user->can('{{ RestoreAny }}');
     }
 
     /**
@@ -95,7 +95,7 @@ class SkriningRisikoPolicy
      */
     public function replicate(User $user, SkriningRisiko $skriningRisiko): bool
     {
-        return $user->can('replicate_skrining::risiko');
+        return $user->can('{{ Replicate }}');
     }
 
     /**
@@ -103,6 +103,6 @@ class SkriningRisikoPolicy
      */
     public function reorder(User $user): bool
     {
-        return $user->can('reorder_skrining::risiko');
+        return $user->can('{{ Reorder }}');
     }
 }

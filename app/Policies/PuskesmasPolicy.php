@@ -63,7 +63,7 @@ class PuskesmasPolicy
      */
     public function forceDelete(User $user, Puskesmas $puskesmas): bool
     {
-        return $user->can('force_delete_puskesmas');
+        return $user->can('{{ ForceDelete }}');
     }
 
     /**
@@ -71,7 +71,7 @@ class PuskesmasPolicy
      */
     public function forceDeleteAny(User $user): bool
     {
-        return $user->can('force_delete_any_puskesmas');
+        return $user->can('{{ ForceDeleteAny }}');
     }
 
     /**
@@ -79,7 +79,7 @@ class PuskesmasPolicy
      */
     public function restore(User $user, Puskesmas $puskesmas): bool
     {
-        return $user->can('restore_puskesmas');
+        return $user->can('{{ Restore }}');
     }
 
     /**
@@ -87,7 +87,7 @@ class PuskesmasPolicy
      */
     public function restoreAny(User $user): bool
     {
-        return $user->can('restore_any_puskesmas');
+        return $user->can('{{ RestoreAny }}');
     }
 
     /**
@@ -95,7 +95,7 @@ class PuskesmasPolicy
      */
     public function replicate(User $user, Puskesmas $puskesmas): bool
     {
-        return $user->can('replicate_puskesmas');
+        return $user->can('{{ Replicate }}');
     }
 
     /**
@@ -103,6 +103,6 @@ class PuskesmasPolicy
      */
     public function reorder(User $user): bool
     {
-        return $user->can('reorder_puskesmas');
+        return $user->can('{{ Reorder }}');
     }
 }

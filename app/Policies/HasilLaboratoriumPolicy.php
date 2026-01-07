@@ -63,7 +63,7 @@ class HasilLaboratoriumPolicy
      */
     public function forceDelete(User $user, HasilLaboratorium $hasilLaboratorium): bool
     {
-        return $user->can('force_delete_hasil::laboratorium');
+        return $user->can('{{ ForceDelete }}');
     }
 
     /**
@@ -71,7 +71,7 @@ class HasilLaboratoriumPolicy
      */
     public function forceDeleteAny(User $user): bool
     {
-        return $user->can('force_delete_any_hasil::laboratorium');
+        return $user->can('{{ ForceDeleteAny }}');
     }
 
     /**
@@ -79,7 +79,7 @@ class HasilLaboratoriumPolicy
      */
     public function restore(User $user, HasilLaboratorium $hasilLaboratorium): bool
     {
-        return $user->can('restore_hasil::laboratorium');
+        return $user->can('{{ Restore }}');
     }
 
     /**
@@ -87,7 +87,7 @@ class HasilLaboratoriumPolicy
      */
     public function restoreAny(User $user): bool
     {
-        return $user->can('restore_any_hasil::laboratorium');
+        return $user->can('{{ RestoreAny }}');
     }
 
     /**
@@ -95,7 +95,7 @@ class HasilLaboratoriumPolicy
      */
     public function replicate(User $user, HasilLaboratorium $hasilLaboratorium): bool
     {
-        return $user->can('replicate_hasil::laboratorium');
+        return $user->can('{{ Replicate }}');
     }
 
     /**
@@ -103,6 +103,6 @@ class HasilLaboratoriumPolicy
      */
     public function reorder(User $user): bool
     {
-        return $user->can('reorder_hasil::laboratorium');
+        return $user->can('{{ Reorder }}');
     }
 }

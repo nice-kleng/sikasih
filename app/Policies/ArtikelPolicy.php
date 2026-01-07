@@ -63,7 +63,7 @@ class ArtikelPolicy
      */
     public function forceDelete(User $user, Artikel $artikel): bool
     {
-        return $user->can('force_delete_artikel');
+        return $user->can('{{ ForceDelete }}');
     }
 
     /**
@@ -71,7 +71,7 @@ class ArtikelPolicy
      */
     public function forceDeleteAny(User $user): bool
     {
-        return $user->can('force_delete_any_artikel');
+        return $user->can('{{ ForceDeleteAny }}');
     }
 
     /**
@@ -79,7 +79,7 @@ class ArtikelPolicy
      */
     public function restore(User $user, Artikel $artikel): bool
     {
-        return $user->can('restore_artikel');
+        return $user->can('{{ Restore }}');
     }
 
     /**
@@ -87,7 +87,7 @@ class ArtikelPolicy
      */
     public function restoreAny(User $user): bool
     {
-        return $user->can('restore_any_artikel');
+        return $user->can('{{ RestoreAny }}');
     }
 
     /**
@@ -95,7 +95,7 @@ class ArtikelPolicy
      */
     public function replicate(User $user, Artikel $artikel): bool
     {
-        return $user->can('replicate_artikel');
+        return $user->can('{{ Replicate }}');
     }
 
     /**
@@ -103,6 +103,6 @@ class ArtikelPolicy
      */
     public function reorder(User $user): bool
     {
-        return $user->can('reorder_artikel');
+        return $user->can('{{ Reorder }}');
     }
 }

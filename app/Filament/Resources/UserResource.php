@@ -49,8 +49,13 @@ class UserResource extends Resource implements HasShieldPermissions
                     ->tel(),
                 Forms\Components\Textarea::make('foto')
                     ->columnSpanFull(),
-                Forms\Components\TextInput::make('status')
-                    ->required(),
+                Forms\Components\Select::make('status')
+                    ->required()
+                    ->options([
+                        'active' => 'Active',
+                        'pending' => 'Pending',
+                        'inactive' => 'Inactive',
+                    ]),
             ]);
     }
 

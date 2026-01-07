@@ -54,7 +54,7 @@ class SuperadminPanelProvider extends PanelProvider
             ->authMiddleware([
                 Authenticate::class,
             ])
-            ->authGuard('web')
+            ->authGuard('filament')
             ->brandName('SIKASIH - Superadmin')
             ->plugins([
                 \BezhanSalleh\FilamentShield\FilamentShieldPlugin::make(),
