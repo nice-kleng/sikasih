@@ -38,7 +38,7 @@ class DatabaseSeeder extends Seeder
             [
                 'name' => 'Super Admin',
                 'password' => bcrypt('password'),
-                'status' => 'aktif',
+                'status' => 'active',
             ]
         );
         $superAdmin->assignRole($superAdminRole);
@@ -53,7 +53,7 @@ class DatabaseSeeder extends Seeder
                 'name' => 'Admin Puskesmas Sukolilo',
                 'password' => bcrypt('password'),
                 'no_telepon' => '081234567890',
-                'status' => 'aktif',
+                'status' => 'active',
             ]
         );
         $userPuskesmas->assignRole($puskesmasRole);
@@ -88,7 +88,7 @@ class DatabaseSeeder extends Seeder
                 'name' => 'Linda Wati',
                 'password' => bcrypt('password'),
                 'no_telepon' => '081234567891',
-                'status' => 'aktif',
+                'status' => 'active',
             ]
         );
         $userBidan1->assignRole($tenagaKesehatanRole);
@@ -117,7 +117,7 @@ class DatabaseSeeder extends Seeder
                 'name' => 'Sari Dewi',
                 'password' => bcrypt('password'),
                 'no_telepon' => '081234567892',
-                'status' => 'aktif',
+                'status' => 'active',
             ]
         );
         $userBidan2->assignRole($tenagaKesehatanRole);
@@ -150,7 +150,7 @@ class DatabaseSeeder extends Seeder
                 'name' => 'Siti Nurhaliza',
                 'password' => bcrypt('password'),
                 'no_telepon' => '081234567893',
-                'status' => 'aktif',
+                'status' => 'active',
             ]
         );
         $userIbu1->assignRole($ibuHamilRole);
@@ -204,7 +204,7 @@ class DatabaseSeeder extends Seeder
                 'name' => 'Rina Wijaya',
                 'password' => bcrypt('password'),
                 'no_telepon' => '081234567894',
-                'status' => 'aktif',
+                'status' => 'active',
             ]
         );
         $userIbu2->assignRole($ibuHamilRole);

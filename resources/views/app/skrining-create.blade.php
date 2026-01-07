@@ -1,366 +1,514 @@
 @extends('layouts.app')
+@section('title', 'Kesehatan')
+@section('page-title', 'Riwayat Kesehatan')
+@section('header-icon', 'fa-heartbeat')
 
-@section('title', 'Skrining Mandiri')
-@section('page-title', 'Skrining Mandiri')
+@push('styles')
+    <style>
+        /* Summary Cards, Tabs, Timeline styles from riwayat.html */
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .summary-card {
+            background: white;
+            border-radius: 12px;
+            padding: 15px 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            text-align: center;
+        }
+
+        .summary-card-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items-center;
+            justify-content-center;
+            margin: 0 auto 8px;
+            font-size: 20px;
+        }
+
+        .summary-card-icon.anc {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            color: #1976d2;
+        }
+
+        .summary-card-icon.skrining {
+            background: linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%);
+            color: #7b1fa2;
+        }
+
+        .summary-card-icon.lab {
+            background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+            color: #f57c00;
+        }
+
+        .summary-card-value {
+            font-size: 20px;
+            font-weight: 700;
+            color: #333;
+        }
+
+        .summary-card-label {
+            font-size: 11px;
+            color: #666;
+        }
+
+        .filter-tabs {
+            background: white;
+            border-radius: 12px;
+            padding: 5px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            display: flex;
+            gap: 5px;
+        }
+
+        .filter-tab {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            background: transparent;
+            color: #666;
+            font-size: 13px;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .filter-tab.active {
+            background: linear-gradient(135deg, #ff6b9d 0%, #ff8fab 100%);
+            color: white;
+        }
+
+        .timeline {
+            position: relative;
+            padding-left: 30px;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 10px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(to bottom, #ff6b9d 0%, #ffc0cb 100%);
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: 25px;
+        }
+
+        .timeline-dot {
+            position: absolute;
+            left: -24px;
+            top: 5px;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #ff6b9d;
+            border: 3px solid #ff6b9d;
+            box-shadow: 0 2px 8px rgba(255, 107, 157, 0.3);
+            z-index: 2;
+        }
+
+        .timeline-card {
+            background: white;
+            border-radius: 12px;
+            padding: 15px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .timeline-card:hover {
+            box-shadow: 0 4px 15px rgba(255, 107, 157, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .timeline-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 12px;
+        }
+
+        .timeline-date {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .timeline-day {
+            font-size: 18px;
+            font-weight: 700;
+            color: #ff6b9d;
+        }
+
+        .timeline-month {
+            font-size: 11px;
+            color: #999;
+        }
+
+        .timeline-badge {
+            background: #ff6b9d;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .timeline-badge.krr {
+            background: #28a745;
+        }
+
+        .timeline-badge.krt {
+            background: #ffc107;
+            color: #333;
+        }
+
+        .timeline-badge.krst {
+            background: #dc3545;
+        }
+
+        .timeline-title {
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .timeline-info {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .info-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            color: #666;
+        }
+
+        .info-item i {
+            color: #ff6b9d;
+            width: 14px;
+        }
+
+        .timeline-details {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px dashed #e0e0e0;
+        }
+
+        .timeline-details.hidden {
+            display: none;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            font-size: 13px;
+            border-bottom: 1px solid #f5f5f5;
+        }
+
+        .detail-label {
+            color: #666;
+            font-weight: 500;
+        }
+
+        .detail-value {
+            color: #333;
+            font-weight: 600;
+            text-align: right;
+        }
+
+        .detail-value.normal {
+            color: #28a745;
+        }
+
+        .expand-btn {
+            width: 100%;
+            margin-top: 10px;
+            padding: 8px;
+            background: #f5f5f5;
+            border: none;
+            border-radius: 8px;
+            color: #ff6b9d;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items-center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .expand-btn:hover {
+            background: #ffe8f2;
+        }
+
+        .expand-btn.expanded i {
+            transform: rotate(180deg);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .empty-icon {
+            font-size: 60px;
+            color: #ddd;
+            margin-bottom: 20px;
+        }
+
+        .empty-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #999;
+            margin-bottom: 10px;
+        }
+
+        .empty-text {
+            font-size: 14px;
+            color: #999;
+        }
+    </style>
+@endpush
 
 @section('content')
-    <div class="p-4 space-y-6" x-data="{
-        selectedFactors: [],
-        totalScore: 0,
-        kategori: '',
-        rekomendasi: '',
-    
-        factors: {
-            'terlalu_muda': { skor: 4, kategori: 'Umur & Paritas' },
-            'terlalu_tua': { skor: 4, kategori: 'Umur & Paritas' },
-            'anak_lebih_4': { skor: 4, kategori: 'Umur & Paritas' },
-            'jarak_kehamilan': { skor: 4, kategori: 'Umur & Paritas' },
-            'kurang_gizi': { skor: 4, kategori: 'Status Gizi' },
-            'pendek': { skor: 4, kategori: 'Riwayat Kesehatan' },
-            'riwayat_sc': { skor: 8, kategori: 'Riwayat Obstetri' },
-            'riwayat_perdarahan': { skor: 8, kategori: 'Riwayat Obstetri' },
-            'riwayat_preeklamsia': { skor: 8, kategori: 'Riwayat Obstetri' },
-            'riwayat_bb_rendah': { skor: 4, kategori: 'Riwayat Obstetri' },
-            'riwayat_bb_tinggi': { skor: 4, kategori: 'Riwayat Obstetri' },
-            'riwayat_kematian': { skor: 4, kategori: 'Riwayat Obstetri' },
-            'riwayat_cacat': { skor: 4, kategori: 'Riwayat Obstetri' },
-            'hamil_kembar': { skor: 4, kategori: 'Kondisi Kehamilan' },
-            'hidramnion': { skor: 4, kategori: 'Kondisi Kehamilan' },
-            'kelainan_letak': { skor: 8, kategori: 'Kondisi Kehamilan' },
-            'perdarahan_hamil': { skor: 8, kategori: 'Kondisi Kehamilan' },
-            'preeklamsia': { skor: 8, kategori: 'Penyakit Penyerta' },
-            'penyakit_kronis': { skor: 4, kategori: 'Penyakit Penyerta' },
-            'anemia': { skor: 4, kategori: 'Penyakit Penyerta' },
-        },
-    
-        calculateScore() {
-            this.totalScore = this.selectedFactors.reduce((sum, factor) => {
-                return sum + (this.factors[factor]?.skor || 0);
-            }, 0);
-    
-            if (this.totalScore <= 2) {
-                this.kategori = 'KRR';
-                this.rekomendasi = 'Bersalin di Puskesmas/Bidan';
-            } else if (this.totalScore <= 6) {
-                this.kategori = 'KRT';
-                this.rekomendasi = 'Bersalin di Puskesmas PONED atau Rumah Sakit';
-            } else {
-                this.kategori = 'KRST';
-                this.rekomendasi = 'Bersalin di Rumah Sakit';
-            }
-        }
-    }" x-init="$watch('selectedFactors', () => calculateScore())">
+    <div class="container-fluid px-3 py-3" x-data="{ activeTab: 'anc' }">
 
-        <!-- Info -->
-        <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
-            <div class="flex items-start gap-3">
-                <svg class="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor"
-                    viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <div class="flex-1 text-sm text-blue-800 dark:text-blue-200">
-                    <p class="font-semibold mb-1">Panduan Skrining Mandiri</p>
-                    <ul class="list-disc list-inside space-y-1 text-xs">
-                        <li>Centang kondisi yang sesuai dengan kondisi Anda</li>
-                        <li>Skor akan otomatis dihitung</li>
-                        <li>Kategori risiko akan otomatis ditampilkan</li>
-                        <li>Anda dapat melakukan skrining berulang kali</li>
-                    </ul>
-                </div>
+        <div class="summary-cards">
+            <div class="summary-card">
+                <div class="summary-card-icon anc"><i class="fas fa-clipboard-list"></i></div>
+                <div class="summary-card-value">{{ $jumlahANC ?? 0 }}</div>
+                <div class="summary-card-label">ANC</div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-card-icon skrining"><i class="fas fa-check-circle"></i></div>
+                <div class="summary-card-value">{{ $jumlahSkrining ?? 0 }}</div>
+                <div class="summary-card-label">Skrining</div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-card-icon lab"><i class="fas fa-flask"></i></div>
+                <div class="summary-card-value">{{ $jumlahLab ?? 0 }}</div>
+                <div class="summary-card-label">Lab</div>
             </div>
         </div>
 
-        <!-- Score Card (Sticky) -->
-        <div
-            class="sticky top-16 z-30 bg-gradient-to-br from-primary-500 to-primary-600 rounded-xl p-4 shadow-lg text-white">
-            <div class="grid grid-cols-3 gap-4">
-                <div class="text-center">
-                    <p class="text-primary-100 text-xs mb-1">Total Skor</p>
-                    <p class="text-2xl font-bold" x-text="totalScore"></p>
-                </div>
-                <div class="text-center">
-                    <p class="text-primary-100 text-xs mb-1">Kategori</p>
-                    <p class="text-2xl font-bold" x-text="kategori || '-'"></p>
-                </div>
-                <div class="text-center">
-                    <p class="text-primary-100 text-xs mb-1">Status</p>
-                    <div class="inline-flex items-center justify-center">
-                        <span x-show="kategori === 'KRR'"
-                            class="text-xs font-semibold bg-green-100 text-green-800 px-2 py-1 rounded-full">AMAN</span>
-                        <span x-show="kategori === 'KRT'"
-                            class="text-xs font-semibold bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full">PERHATIAN</span>
-                        <span x-show="kategori === 'KRST'"
-                            class="text-xs font-semibold bg-red-100 text-red-800 px-2 py-1 rounded-full">PRIORITAS</span>
-                        <span x-show="!kategori"
-                            class="text-xs font-semibold bg-gray-100 text-gray-800 px-2 py-1 rounded-full">-</span>
+        <div class="filter-tabs">
+            <button @click="activeTab = 'anc'" :class="{ 'active': activeTab === 'anc' }"
+                class="filter-tab">ANC</button>
+            <button @click="activeTab = 'skrining'" :class="{ 'active': activeTab === 'skrining' }"
+                class="filter-tab">Skrining</button>
+            <button @click="activeTab = 'lab'" :class="{ 'active': activeTab === 'lab' }"
+                class="filter-tab">Lab</button>
+        </div>
+
+        <!-- ANC Tab -->
+        <div x-show="activeTab === 'anc'" x-cloak>
+            <div class="timeline">
+                @forelse($pemeriksaan ?? [] as $p)
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-card">
+                            <div class="timeline-header">
+                                <div class="timeline-date">
+                                    <div class="timeline-day">{{ $p->tanggal_pemeriksaan->format('d M') }}</div>
+                                    <div class="timeline-month">{{ $p->tanggal_pemeriksaan->format('Y') }}</div>
+                                </div>
+                                <div class="timeline-badge">ANC ke-{{ $p->kunjungan_ke }}</div>
+                            </div>
+                            <div class="timeline-title">Pemeriksaan Antenatal Care</div>
+                            <div class="timeline-info">
+                                @if ($p->tenagaKesehatan)
+                                    <div class="info-item"><i
+                                            class="fas fa-user-nurse"></i><span>{{ $p->tenagaKesehatan->user->nama }}</span>
+                                    </div>
+                                @endif
+                                <div class="info-item"><i class="fas fa-clock"></i><span>UK: {{ $p->usia_kehamilan_minggu }}
+                                        minggu</span></div>
+                            </div>
+                            <div class="timeline-details hidden" id="details-anc-{{ $p->id }}">
+                                <div class="detail-row"><span class="detail-label">BB:</span><span
+                                        class="detail-value">{{ $p->berat_badan }} kg</span></div>
+                                <div class="detail-row"><span class="detail-label">TD:</span><span
+                                        class="detail-value normal">{{ $p->tekanan_darah }}</span></div>
+                                @if ($p->tinggi_fundus)
+                                    <div class="detail-row"><span class="detail-label">TFU:</span><span
+                                            class="detail-value">{{ $p->tinggi_fundus }} cm</span></div>
+                                @endif
+                                @if ($p->denyut_jantung_janin)
+                                    <div class="detail-row"><span class="detail-label">DJJ:</span><span
+                                            class="detail-value normal">{{ $p->denyut_jantung_janin }} x/mnt</span></div>
+                                @endif
+                            </div>
+                            <button class="expand-btn" onclick="toggleDetails('anc-{{ $p->id }}')"><span>Lihat
+                                    Detail</span><i class="fas fa-chevron-down"></i></button>
+                        </div>
+                    </div>
+                @empty
+                    <div class="empty-state">
+                        <div class="empty-icon"><i class="fas fa-clipboard-list"></i></div>
+                        <div class="empty-title">Belum Ada Riwayat ANC</div>
+                    </div>
+                @endforelse
+            </div>
+        </div>
+
+        <!-- Skrining Tab -->
+        <div x-show="activeTab === 'skrining'" x-cloak>
+            <a href="{{ route('app.skrining.create') }}" class="card border-0 shadow-sm mb-3 text-decoration-none"
+                style="background: linear-gradient(135deg, #ff6b9d 0%, #ff8fab 100%);">
+                <div class="card-body text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="fw-bold mb-1"><i class="fas fa-plus-circle me-2"></i>Skrining Mandiri</h5>
+                            <p class="mb-0" style="font-size: 13px;">Cek risiko kehamilan Anda</p>
+                        </div><i class="fas fa-arrow-right fa-2x"></i>
                     </div>
                 </div>
-            </div>
-            <div class="mt-3 pt-3 border-t border-white/20" x-show="rekomendasi">
-                <p class="text-primary-100 text-xs mb-1">Rekomendasi Tempat Bersalin:</p>
-                <p class="text-sm font-semibold" x-text="rekomendasi"></p>
+            </a>
+
+            <div class="timeline">
+                @forelse($skrining ?? [] as $s)
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-card" data-bs-toggle="modal"
+                            data-bs-target="#skriningModal{{ $s->id }}">
+                            <div class="timeline-header">
+                                <div class="timeline-date">
+                                    <div class="timeline-day">{{ $s->tanggal_skrining->format('d M') }}</div>
+                                    <div class="timeline-month">{{ $s->tanggal_skrining->format('Y') }}</div>
+                                </div>
+                                <div class="timeline-badge {{ strtolower($s->kategori_risiko) }}">
+                                    {{ $s->kategori_risiko }}</div>
+                            </div>
+                            <div class="timeline-title">Skrining {{ ucfirst($s->jenis_skrining) }}</div>
+                            <div class="timeline-info">
+                                <div class="info-item"><i class="fas fa-calculator"></i><span>Skor:
+                                        {{ $s->total_skor }}</span></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Modal Skrining -->
+                    <div class="modal fade" id="skriningModal{{ $s->id }}" tabindex="-1">
+                        <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content" style="border-radius: 20px;">
+                                <div class="modal-body p-4 text-center">
+                                    <div class="mb-3 mx-auto rounded-circle d-inline-flex align-items-center justify-content-center"
+                                        style="width: 80px; height: 80px; background: {{ $s->kategori_risiko === 'KRR' ? '#d1f4e0' : ($s->kategori_risiko === 'KRT' ? '#fff3cd' : '#f8d7da') }};">
+                                        <i class="fas {{ $s->kategori_risiko === 'KRR' ? 'fa-check-circle' : ($s->kategori_risiko === 'KRT' ? 'fa-exclamation-circle' : 'fa-times-circle') }} fa-3x"
+                                            style="color: {{ $s->kategori_risiko === 'KRR' ? '#28a745' : ($s->kategori_risiko === 'KRT' ? '#ffc107' : '#dc3545') }};"></i>
+                                    </div>
+                                    <h4 class="fw-bold">Hasil Skrining</h4>
+                                    <div class="display-4 fw-bold text-primary">{{ $s->total_skor }}</div>
+                                    <h5
+                                        class="badge {{ $s->kategori_risiko === 'KRR' ? 'bg-success' : ($s->kategori_risiko === 'KRT' ? 'bg-warning text-dark' : 'bg-danger') }} px-3 py-2 mb-3">
+                                        {{ $s->kategori_risiko === 'KRR' ? 'Risiko Rendah (KRR)' : ($s->kategori_risiko === 'KRT' ? 'Risiko Tinggi (KRT)' : 'Risiko Sangat Tinggi (KRST)') }}
+                                    </h5>
+                                    @if ($s->rekomendasi)
+                                        <div class="card border-0 bg-light text-start mb-3">
+                                            <div class="card-body">
+                                                <h6 class="fw-bold mb-2"><i
+                                                        class="fas fa-clipboard-list text-primary me-2"></i>Rekomendasi
+                                                </h6>
+                                                <ul class="mb-0" style="font-size: 13px;">
+                                                    @foreach ($s->rekomendasi->rekomendasi_list as $rec)
+                                                        <li>{{ $rec }}</li>
+                                                    @endforeach
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    @endif
+                                    <small class="text-muted">{{ $s->tanggal_skrining->format('d F Y') }}</small>
+                                </div>
+                                <div class="modal-footer border-0">
+                                    <button type="button" class="btn btn-secondary"
+                                        data-bs-dismiss="modal">Tutup</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @empty
+                    <div class="empty-state">
+                        <div class="empty-icon"><i class="fas fa-check-circle"></i></div>
+                        <div class="empty-title">Belum Ada Skrining</div>
+                    </div>
+                @endforelse
             </div>
         </div>
 
-        <!-- Form -->
-        <form method="POST" action="{{ route('app.skrining.store') }}" class="space-y-4">
-            @csrf
-
-            <!-- Umur & Paritas -->
-            <div class="bg-white dark:bg-gray-800 rounded-xl p-5 shadow">
-                <h3 class="font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
-                    <span
-                        class="w-8 h-8 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center text-blue-600 dark:text-blue-400 text-sm font-bold mr-3">1</span>
-                    Umur & Paritas
-                </h3>
-                <div class="space-y-3">
-                    <label class="flex items-start gap-3 cursor-pointer">
-                        <input type="checkbox" name="faktor_risiko[]" value="terlalu_muda" x-model="selectedFactors"
-                            class="mt-1 w-5 h-5 text-primary-600 border-gray-300 rounded focus:ring-primary-500">
-                        <div class="flex-1">
-                            <p class="text-sm font-medium text-gray-900 dark:text-white">Terlalu muda (< 16 tahun)</p>
-                                    <p class="text-xs text-gray-500 dark:text-gray-400">Skor: 4</p>
+        <!-- Lab Tab -->
+        <div x-show="activeTab === 'lab'" x-cloak>
+            <div class="timeline">
+                @forelse($laboratorium ?? [] as $l)
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-card">
+                            <div class="timeline-header">
+                                <div class="timeline-date">
+                                    <div class="timeline-day">{{ $l->tanggal_pemeriksaan->format('d M') }}</div>
+                                    <div class="timeline-month">{{ $l->tanggal_pemeriksaan->format('Y') }}</div>
+                                </div>
+                                <div class="timeline-badge" style="background: #f57c00;">Lab</div>
+                            </div>
+                            <div class="timeline-title">{{ $l->jenis_pemeriksaan }}</div>
+                            <div class="timeline-details hidden" id="details-lab-{{ $l->id }}">
+                                @if ($l->hasil_lab)
+                                    @foreach (json_decode($l->hasil_lab, true) as $k => $v)
+                                        <div class="detail-row"><span
+                                                class="detail-label">{{ ucfirst(str_replace('_', ' ', $k)) }}:</span><span
+                                                class="detail-value">{{ $v }}</span></div>
+                                    @endforeach
+                                @endif
+                            </div>
+                            <button class="expand-btn" onclick="toggleDetails('lab-{{ $l->id }}')"><span>Lihat
+                                    Detail</span><i class="fas fa-chevron-down"></i></button>
                         </div>
-                    </label>
-
-                    <label class="flex items-start gap-3 cursor-pointer">
-                        <input type="checkbox" name="faktor_risiko[]" value="terlalu_tua" x-model="selectedFactors"
-                            class="mt-1 w-5 h-5 text-primary-600 border-gray-300 rounded focus:ring-primary-500">
-                        <div class="flex-1">
-                            <p class="text-sm font-medium text-gray-900 dark:text-white">Terlalu tua (> 35 tahun)</p>
-                            <p class="text-xs text-gray-500 dark:text-gray-400">Skor: 4</p>
-                        </div>
-                    </label>
-
-                    <label class="flex items-start gap-3 cursor-pointer">
-                        <input type="checkbox" name="faktor_risiko[]" value="anak_lebih_4" x-model="selectedFactors"
-                            class="mt-1 w-5 h-5 text-primary-600 border-gray-300 rounded focus:ring-primary-500">
-                        <div class="flex-1">
-                            <p class="text-sm font-medium text-gray-900 dark:text-white">Anak lebih dari 4</p>
-                            <p class="text-xs text-gray-500 dark:text-gray-400">Skor: 4</p>
-                        </div>
-                    </label>
-
-                    <label class="flex items-start gap-3 cursor-pointer">
-                        <input type="checkbox" name="faktor_risiko[]" value="jarak_kehamilan" x-model="selectedFactors"
-                            class="mt-1 w-5 h-5 text-primary-600 border-gray-300 rounded focus:ring-primary-500">
-                        <div class="flex-1">
-                            <p class="text-sm font-medium text-gray-900 dark:text-white">Jarak kehamilan terakhir < 2
-                                    tahun</p>
-                                    <p class="text-xs text-gray-500 dark:text-gray-400">Skor: 4</p>
-                        </div>
-                    </label>
-                </div>
+                    </div>
+                @empty
+                    <div class="empty-state">
+                        <div class="empty-icon"><i class="fas fa-flask"></i></div>
+                        <div class="empty-title">Belum Ada Lab</div>
+                    </div>
+                @endforelse
             </div>
+        </div>
 
-            <!-- Status Gizi -->
-            <div class="bg-white dark:bg-gray-800 rounded-xl p-5 shadow">
-                <h3 class="font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
-                    <span
-                        class="w-8 h-8 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center text-green-600 dark:text-green-400 text-sm font-bold mr-3">2</span>
-                    Status Gizi
-                </h3>
-                <div class="space-y-3">
-                    <label class="flex items-start gap-3 cursor-pointer">
-                        <input type="checkbox" name="faktor_risiko[]" value="kurang_gizi" x-model="selectedFactors"
-                            class="mt-1 w-5 h-5 text-primary-600 border-gray-300 rounded focus:ring-primary-500">
-                        <div class="flex-1">
-                            <p class="text-sm font-medium text-gray-900 dark:text-white">Kurang gizi (KEK)</p>
-                            <p class="text-xs text-gray-500 dark:text-gray-400">Skor: 4</p>
-                        </div>
-                    </label>
-
-                    <label class="flex items-start gap-3 cursor-pointer">
-                        <input type="checkbox" name="faktor_risiko[]" value="pendek" x-model="selectedFactors"
-                            class="mt-1 w-5 h-5 text-primary-600 border-gray-300 rounded focus:ring-primary-500">
-                        <div class="flex-1">
-                            <p class="text-sm font-medium text-gray-900 dark:text-white">Tinggi badan < 145 cm</p>
-                                    <p class="text-xs text-gray-500 dark:text-gray-400">Skor: 4</p>
-                        </div>
-                    </label>
-                </div>
-            </div>
-
-            <!-- Riwayat Obstetri -->
-            <div class="bg-white dark:bg-gray-800 rounded-xl p-5 shadow">
-                <h3 class="font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
-                    <span
-                        class="w-8 h-8 bg-purple-100 dark:bg-purple-900/30 rounded-full flex items-center justify-center text-purple-600 dark:text-purple-400 text-sm font-bold mr-3">3</span>
-                    Riwayat Obstetri
-                </h3>
-                <div class="space-y-3">
-                    <label class="flex items-start gap-3 cursor-pointer">
-                        <input type="checkbox" name="faktor_risiko[]" value="riwayat_sc" x-model="selectedFactors"
-                            class="mt-1 w-5 h-5 text-primary-600 border-gray-300 rounded focus:ring-primary-500">
-                        <div class="flex-1">
-                            <p class="text-sm font-medium text-gray-900 dark:text-white">Riwayat operasi caesar</p>
-                            <p class="text-xs text-red-500 dark:text-red-400 font-semibold">Skor: 8 ⚠️</p>
-                        </div>
-                    </label>
-
-                    <label class="flex items-start gap-3 cursor-pointer">
-                        <input type="checkbox" name="faktor_risiko[]" value="riwayat_perdarahan"
-                            x-model="selectedFactors"
-                            class="mt-1 w-5 h-5 text-primary-600 border-gray-300 rounded focus:ring-primary-500">
-                        <div class="flex-1">
-                            <p class="text-sm font-medium text-gray-900 dark:text-white">Riwayat perdarahan</p>
-                            <p class="text-xs text-red-500 dark:text-red-400 font-semibold">Skor: 8 ⚠️</p>
-                        </div>
-                    </label>
-
-                    <label class="flex items-start gap-3 cursor-pointer">
-                        <input type="checkbox" name="faktor_risiko[]" value="riwayat_preeklamsia"
-                            x-model="selectedFactors"
-                            class="mt-1 w-5 h-5 text-primary-600 border-gray-300 rounded focus:ring-primary-500">
-                        <div class="flex-1">
-                            <p class="text-sm font-medium text-gray-900 dark:text-white">Riwayat preeklamsia/eklamsia</p>
-                            <p class="text-xs text-red-500 dark:text-red-400 font-semibold">Skor: 8 ⚠️</p>
-                        </div>
-                    </label>
-
-                    <label class="flex items-start gap-3 cursor-pointer">
-                        <input type="checkbox" name="faktor_risiko[]" value="riwayat_bb_rendah"
-                            x-model="selectedFactors"
-                            class="mt-1 w-5 h-5 text-primary-600 border-gray-300 rounded focus:ring-primary-500">
-                        <div class="flex-1">
-                            <p class="text-sm font-medium text-gray-900 dark:text-white">Bayi terakhir BB < 2500 gram</p>
-                                    <p class="text-xs text-gray-500 dark:text-gray-400">Skor: 4</p>
-                        </div>
-                    </label>
-
-                    <label class="flex items-start gap-3 cursor-pointer">
-                        <input type="checkbox" name="faktor_risiko[]" value="riwayat_bb_tinggi"
-                            x-model="selectedFactors"
-                            class="mt-1 w-5 h-5 text-primary-600 border-gray-300 rounded focus:ring-primary-500">
-                        <div class="flex-1">
-                            <p class="text-sm font-medium text-gray-900 dark:text-white">Bayi terakhir BB > 4000 gram</p>
-                            <p class="text-xs text-gray-500 dark:text-gray-400">Skor: 4</p>
-                        </div>
-                    </label>
-
-                    <label class="flex items-start gap-3 cursor-pointer">
-                        <input type="checkbox" name="faktor_risiko[]" value="riwayat_kematian" x-model="selectedFactors"
-                            class="mt-1 w-5 h-5 text-primary-600 border-gray-300 rounded focus:ring-primary-500">
-                        <div class="flex-1">
-                            <p class="text-sm font-medium text-gray-900 dark:text-white">Riwayat kematian janin/neonatal
-                            </p>
-                            <p class="text-xs text-gray-500 dark:text-gray-400">Skor: 4</p>
-                        </div>
-                    </label>
-
-                    <label class="flex items-start gap-3 cursor-pointer">
-                        <input type="checkbox" name="faktor_risiko[]" value="riwayat_cacat" x-model="selectedFactors"
-                            class="mt-1 w-5 h-5 text-primary-600 border-gray-300 rounded focus:ring-primary-500">
-                        <div class="flex-1">
-                            <p class="text-sm font-medium text-gray-900 dark:text-white">Riwayat bayi cacat bawaan</p>
-                            <p class="text-xs text-gray-500 dark:text-gray-400">Skor: 4</p>
-                        </div>
-                    </label>
-                </div>
-            </div>
-
-            <!-- Kondisi Kehamilan Saat Ini -->
-            <div class="bg-white dark:bg-gray-800 rounded-xl p-5 shadow">
-                <h3 class="font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
-                    <span
-                        class="w-8 h-8 bg-pink-100 dark:bg-pink-900/30 rounded-full flex items-center justify-center text-pink-600 dark:text-pink-400 text-sm font-bold mr-3">4</span>
-                    Kondisi Kehamilan Saat Ini
-                </h3>
-                <div class="space-y-3">
-                    <label class="flex items-start gap-3 cursor-pointer">
-                        <input type="checkbox" name="faktor_risiko[]" value="hamil_kembar" x-model="selectedFactors"
-                            class="mt-1 w-5 h-5 text-primary-600 border-gray-300 rounded focus:ring-primary-500">
-                        <div class="flex-1">
-                            <p class="text-sm font-medium text-gray-900 dark:text-white">Hamil kembar</p>
-                            <p class="text-xs text-gray-500 dark:text-gray-400">Skor: 4</p>
-                        </div>
-                    </label>
-
-                    <label class="flex items-start gap-3 cursor-pointer">
-                        <input type="checkbox" name="faktor_risiko[]" value="hidramnion" x-model="selectedFactors"
-                            class="mt-1 w-5 h-5 text-primary-600 border-gray-300 rounded focus:ring-primary-500">
-                        <div class="flex-1">
-                            <p class="text-sm font-medium text-gray-900 dark:text-white">Hidramnion/oligohidramnion</p>
-                            <p class="text-xs text-gray-500 dark:text-gray-400">Skor: 4</p>
-                        </div>
-                    </label>
-
-                    <label class="flex items-start gap-3 cursor-pointer">
-                        <input type="checkbox" name="faktor_risiko[]" value="kelainan_letak" x-model="selectedFactors"
-                            class="mt-1 w-5 h-5 text-primary-600 border-gray-300 rounded focus:ring-primary-500">
-                        <div class="flex-1">
-                            <p class="text-sm font-medium text-gray-900 dark:text-white">Kelainan letak janin</p>
-                            <p class="text-xs text-red-500 dark:text-red-400 font-semibold">Skor: 8 ⚠️</p>
-                        </div>
-                    </label>
-
-                    <label class="flex items-start gap-3 cursor-pointer">
-                        <input type="checkbox" name="faktor_risiko[]" value="perdarahan_hamil" x-model="selectedFactors"
-                            class="mt-1 w-5 h-5 text-primary-600 border-gray-300 rounded focus:ring-primary-500">
-                        <div class="flex-1">
-                            <p class="text-sm font-medium text-gray-900 dark:text-white">Perdarahan pada kehamilan ini</p>
-                            <p class="text-xs text-red-500 dark:text-red-400 font-semibold">Skor: 8 ⚠️</p>
-                        </div>
-                    </label>
-                </div>
-            </div>
-
-            <!-- Penyakit Penyerta -->
-            <div class="bg-white dark:bg-gray-800 rounded-xl p-5 shadow">
-                <h3 class="font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
-                    <span
-                        class="w-8 h-8 bg-orange-100 dark:bg-orange-900/30 rounded-full flex items-center justify-center text-orange-600 dark:text-orange-400 text-sm font-bold mr-3">5</span>
-                    Penyakit Penyerta
-                </h3>
-                <div class="space-y-3">
-                    <label class="flex items-start gap-3 cursor-pointer">
-                        <input type="checkbox" name="faktor_risiko[]" value="preeklamsia" x-model="selectedFactors"
-                            class="mt-1 w-5 h-5 text-primary-600 border-gray-300 rounded focus:ring-primary-500">
-                        <div class="flex-1">
-                            <p class="text-sm font-medium text-gray-900 dark:text-white">Preeklamsia/hipertensi</p>
-                            <p class="text-xs text-red-500 dark:text-red-400 font-semibold">Skor: 8 ⚠️</p>
-                        </div>
-                    </label>
-
-                    <label class="flex items-start gap-3 cursor-pointer">
-                        <input type="checkbox" name="faktor_risiko[]" value="penyakit_kronis" x-model="selectedFactors"
-                            class="mt-1 w-5 h-5 text-primary-600 border-gray-300 rounded focus:ring-primary-500">
-                        <div class="flex-1">
-                            <p class="text-sm font-medium text-gray-900 dark:text-white">Penyakit kronis (jantung, DM,
-                                ginjal, dll)</p>
-                            <p class="text-xs text-gray-500 dark:text-gray-400">Skor: 4</p>
-                        </div>
-                    </label>
-
-                    <label class="flex items-start gap-3 cursor-pointer">
-                        <input type="checkbox" name="faktor_risiko[]" value="anemia" x-model="selectedFactors"
-                            class="mt-1 w-5 h-5 text-primary-600 border-gray-300 rounded focus:ring-primary-500">
-                        <div class="flex-1">
-                            <p class="text-sm font-medium text-gray-900 dark:text-white">Anemia (HB < 11 g/dL)</p>
-                                    <p class="text-xs text-gray-500 dark:text-gray-400">Skor: 4</p>
-                        </div>
-                    </label>
-                </div>
-            </div>
-
-            <!-- Catatan (Optional) -->
-            <div class="bg-white dark:bg-gray-800 rounded-xl p-5 shadow">
-                <label for="catatan" class="block text-sm font-medium text-gray-900 dark:text-white mb-2">
-                    Catatan (Opsional)
-                </label>
-                <textarea name="catatan" id="catatan" rows="3"
-                    class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                    placeholder="Tuliskan keluhan atau catatan tambahan di sini..."></textarea>
-            </div>
-
-            <!-- Submit Button -->
-            <div class="sticky bottom-20 bg-white dark:bg-gray-800 rounded-xl p-4 shadow-lg">
-                <button type="submit"
-                    class="w-full bg-primary-500 hover:bg-primary-600 text-white font-semibold py-4 rounded-lg transition-colors shadow-lg hover:shadow-xl touch-feedback">
-                    Simpan Hasil Skrining
-                </button>
-            </div>
-        </form>
     </div>
+
+    @push('scripts')
+        <script>
+            function toggleDetails(id) {
+                const details = document.getElementById(`details-${id}`);
+                if (!details) return;
+                const btn = details.nextElementSibling;
+                const icon = btn.querySelector('i');
+                const text = btn.querySelector('span');
+                if (details.classList.contains('hidden')) {
+                    details.classList.remove('hidden');
+                    btn.classList.add('expanded');
+                    text.textContent = 'Tutup Detail';
+                } else {
+                    details.classList.add('hidden');
+                    btn.classList.remove('expanded');
+                    text.textContent = 'Lihat Detail';
+                }
+            }
+        </script>
+    @endpush
 @endsection

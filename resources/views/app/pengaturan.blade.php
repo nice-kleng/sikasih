@@ -1,19 +1,56 @@
 @extends('layouts.app')
 @section('title', 'Pengaturan')
 @section('page-title', 'Pengaturan')
+@section('header-icon', 'fa-cog')
 @section('content')
-<div class="p-4 space-y-6">
-    <div class="bg-white dark:bg-gray-800 rounded-xl p-5 shadow">
-        <h3 class="font-semibold text-gray-900 dark:text-white mb-4">Notifikasi</h3>
-        <div class="space-y-4">
-            <div class="flex items-center justify-between"><span class="text-sm text-gray-700 dark:text-gray-300">Pemeriksaan</span><input type="checkbox" checked class="w-5 h-5 text-primary-600 rounded"></div>
-            <div class="flex items-center justify-between"><span class="text-sm text-gray-700 dark:text-gray-300">Skrining</span><input type="checkbox" checked class="w-5 h-5 text-primary-600 rounded"></div>
-            <div class="flex items-center justify-between"><span class="text-sm text-gray-700 dark:text-gray-300">Artikel Baru</span><input type="checkbox" checked class="w-5 h-5 text-primary-600 rounded"></div>
+    <div class="container-fluid px-3 py-3">
+
+        <div class="card border-0 shadow-sm mb-3">
+            <div class="card-header bg-primary text-white">
+                <strong><i class="fas fa-bell me-2"></i>Notifikasi</strong>
+            </div>
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <span>Pemeriksaan</span>
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" checked>
+                    </div>
+                </div>
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <span>Skrining</span>
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" checked>
+                    </div>
+                </div>
+                <div class="d-flex justify-content-between align-items-center">
+                    <span>Artikel Baru</span>
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" checked>
+                    </div>
+                </div>
+            </div>
         </div>
+
+        <div class="card border-0 shadow-sm mb-3">
+            <div class="card-header bg-primary text-white">
+                <strong><i class="fas fa-info-circle me-2"></i>Tentang</strong>
+            </div>
+            <div class="card-body">
+                <p class="mb-2"><strong>SIKASIH v1.0.0</strong></p>
+                <p class="text-muted mb-0" style="font-size: 13px;">Sistem Informasi Kesehatan Ibu Hamil</p>
+            </div>
+        </div>
+
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <a href="#" class="text-primary text-decoration-none d-block mb-2">
+                    <i class="fas fa-file-alt me-2"></i>Syarat & Ketentuan
+                </a>
+                <a href="#" class="text-primary text-decoration-none d-block">
+                    <i class="fas fa-shield-alt me-2"></i>Kebijakan Privasi
+                </a>
+            </div>
+        </div>
+
     </div>
-    <div class="bg-white dark:bg-gray-800 rounded-xl p-5 shadow">
-        <h3 class="font-semibold text-gray-900 dark:text-white mb-4">Tentang</h3>
-        <div class="space-y-2 text-sm"><p class="text-gray-600 dark:text-gray-400">SIKASIH v1.0.0</p><p class="text-gray-600 dark:text-gray-400">Sistem Informasi Kesehatan Ibu Hamil</p></div>
-    </div>
-</div>
 @endsection

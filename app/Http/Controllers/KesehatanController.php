@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\HasilLaboratorium;
 use App\Models\IbuHamil;
 use App\Models\PemeriksaanAnc;
+use App\Models\RekomendasiSkrining;
 use App\Models\SkriningRisiko;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -15,29 +17,28 @@ class KesehatanController extends Controller
      */
     public function index()
     {
-        $user = auth()->user();
-        $ibuHamil = $user->ibuHamil;
-
-        if (!$ibuHamil) {
-            return redirect()->route('app.profil')->with('warning', 'Silakan lengkapi data kehamilan Anda.');
-        }
-
-        // Get all pemeriksaan
-        $pemeriksaan = PemeriksaanAnc::where('ibu_hamil_id', $ibuHamil->id)
+        $pemeriksaan = PemeriksaanAnc::where('ibu_hamil_id', auth()->user()->ibuHamil->id)
             ->with('tenagaKesehatan.user')
-            ->latest('tanggal_pemeriksaan')
+            ->orderBy('tanggal_pemeriksaan', 'desc')
             ->get();
 
-        // Get all skrining
-        $skrining = SkriningRisiko::where('ibu_hamil_id', $ibuHamil->id)
-            ->with('tenagaKesehatan.user')
-            ->latest('tanggal_skrining')
+        $skrining = SkriningRisiko::where('ibu_hamil_id', auth()->user()->ibuHamil->id)
+            ->with('rekomendasi')
+            ->orderBy('tanggal_skrining', 'desc')
             ->get();
 
-        // Check if pending
-        $isPending = $user->status === 'pending';
+        $laboratorium = HasilLaboratorium::where('ibu_hamil_id', auth()->user()->ibuHamil->id)
+            ->orderBy('tanggal_pemeriksaan', 'desc')
+            ->get();
 
-        return view('app.kesehatan', compact('ibuHamil', 'pemeriksaan', 'skrining', 'isPending'));
+        return view('app.kesehatan', [
+            'pemeriksaan' => $pemeriksaan,
+            'skrining' => $skrining,
+            'laboratorium' => $laboratorium,
+            'jumlahANC' => $pemeriksaan->count(),
+            'jumlahSkrining' => $skrining->count(),
+            'jumlahLab' => $laboratorium->count(),
+        ]);
     }
 
     /**
@@ -64,73 +65,73 @@ class KesehatanController extends Controller
     /**
      * Store skrining mandiri
      */
-    public function storeSkrining(Request $request)
-    {
-        $user = auth()->user();
-        $ibuHamil = $user->ibuHamil;
+    // public function storeSkrining(Request $request)
+    // {
+    //     $user = auth()->user();
+    //     $ibuHamil = $user->ibuHamil;
 
-        if (!$ibuHamil) {
-            return redirect()->route('app.profil')->with('error', 'Data kehamilan tidak ditemukan.');
-        }
+    //     if (!$ibuHamil) {
+    //         return redirect()->route('app.profil')->with('error', 'Data kehamilan tidak ditemukan.');
+    //     }
 
-        $validated = $request->validate([
-            'faktor_risiko' => 'required|array',
-            'faktor_risiko.*' => 'string',
-            'catatan' => 'nullable|string',
-        ]);
+    //     $validated = $request->validate([
+    //         'faktor_risiko' => 'required|array',
+    //         'faktor_risiko.*' => 'string',
+    //         'catatan' => 'nullable|string',
+    //     ]);
 
-        // Calculate score
-        $totalSkor = 0;
-        $faktorRisikoTerpilih = [];
-        $faktorRisikoList = $this->getFaktorRisikoList();
+    //     // Calculate score
+    //     $totalSkor = 0;
+    //     $faktorRisikoTerpilih = [];
+    //     $faktorRisikoList = $this->getFaktorRisikoList();
 
-        foreach ($validated['faktor_risiko'] as $key) {
-            if (isset($faktorRisikoList[$key])) {
-                $totalSkor += $faktorRisikoList[$key]['skor'];
-                $faktorRisikoTerpilih[] = $faktorRisikoList[$key]['nama'];
-            }
-        }
+    //     foreach ($validated['faktor_risiko'] as $key) {
+    //         if (isset($faktorRisikoList[$key])) {
+    //             $totalSkor += $faktorRisikoList[$key]['skor'];
+    //             $faktorRisikoTerpilih[] = $faktorRisikoList[$key]['nama'];
+    //         }
+    //     }
 
-        // Determine kategori
-        if ($totalSkor <= 2) {
-            $kategori = 'KRR';
-            $rekomendasi = 'Bersalin di Puskesmas/Bidan';
-        } elseif ($totalSkor <= 6) {
-            $kategori = 'KRT';
-            $rekomendasi = 'Bersalin di Puskesmas PONED atau Rumah Sakit';
-        } else {
-            $kategori = 'KRST';
-            $rekomendasi = 'Bersalin di Rumah Sakit';
-        }
+    //     // Determine kategori
+    //     if ($totalSkor <= 2) {
+    //         $kategori = 'KRR';
+    //         $rekomendasi = 'Bersalin di Puskesmas/Bidan';
+    //     } elseif ($totalSkor <= 6) {
+    //         $kategori = 'KRT';
+    //         $rekomendasi = 'Bersalin di Puskesmas PONED atau Rumah Sakit';
+    //     } else {
+    //         $kategori = 'KRST';
+    //         $rekomendasi = 'Bersalin di Rumah Sakit';
+    //     }
 
-        // Generate no_skrining
-        $lastSkrining = SkriningRisiko::where('puskesmas_id', $ibuHamil->puskesmas_id)
-            ->latest('id')
-            ->first();
-        $lastNumber = $lastSkrining ? (int) substr($lastSkrining->no_skrining, -4) : 0;
-        $newNumber = str_pad($lastNumber + 1, 4, '0', STR_PAD_LEFT);
-        $noSkrining = 'SKR-' . date('Y') . '-' . $newNumber;
+    //     // Generate no_skrining
+    //     $lastSkrining = SkriningRisiko::where('puskesmas_id', $ibuHamil->puskesmas_id)
+    //         ->latest('id')
+    //         ->first();
+    //     $lastNumber = $lastSkrining ? (int) substr($lastSkrining->no_skrining, -4) : 0;
+    //     $newNumber = str_pad($lastNumber + 1, 4, '0', STR_PAD_LEFT);
+    //     $noSkrining = 'SKR-' . date('Y') . '-' . $newNumber;
 
-        // Create skrining
-        SkriningRisiko::create([
-            'ibu_hamil_id' => $ibuHamil->id,
-            'puskesmas_id' => $ibuHamil->puskesmas_id,
-            'tenaga_kesehatan_id' => null, // Mandiri
-            'no_skrining' => $noSkrining,
-            'tanggal_skrining' => now(),
-            'usia_kehamilan_minggu' => $ibuHamil->usia_kehamilan_minggu,
-            'jenis_skrining' => 'mandiri',
-            'faktor_risiko' => json_encode($faktorRisikoTerpilih),
-            'total_skor' => $totalSkor,
-            'kategori_risiko' => $kategori,
-            'rekomendasi_tempat_bersalin' => $rekomendasi,
-            'catatan' => $validated['catatan'],
-            'status' => 'selesai',
-        ]);
+    //     // Create skrining
+    //     SkriningRisiko::create([
+    //         'ibu_hamil_id' => $ibuHamil->id,
+    //         'puskesmas_id' => $ibuHamil->puskesmas_id,
+    //         'tenaga_kesehatan_id' => null, // Mandiri
+    //         'no_skrining' => $noSkrining,
+    //         'tanggal_skrining' => now(),
+    //         'usia_kehamilan_minggu' => $ibuHamil->usia_kehamilan_minggu,
+    //         'jenis_skrining' => 'mandiri',
+    //         'faktor_risiko' => json_encode($faktorRisikoTerpilih),
+    //         'total_skor' => $totalSkor,
+    //         'kategori_risiko' => $kategori,
+    //         'rekomendasi_tempat_bersalin' => $rekomendasi,
+    //         'catatan' => $validated['catatan'],
+    //         'status' => 'final',
+    //     ]);
 
-        return redirect()->route('app.kesehatan')
-            ->with('success', 'Skrining mandiri berhasil disimpan! Kategori risiko Anda: ' . $kategori);
-    }
+    //     return redirect()->route('app.kesehatan')
+    //         ->with('success', 'Skrining mandiri berhasil disimpan! Kategori risiko Anda: ' . $kategori);
+    // }
 
     /**
      * Get faktor risiko list with scores
@@ -239,5 +240,52 @@ class KesehatanController extends Controller
                 'kategori' => 'Penyakit Penyerta'
             ],
         ];
+    }
+
+    public function storeSkrining(Request $request)
+    {
+        $user = auth()->user();
+        $ibuHamil = $user->ibuHamil;
+
+        if (!$ibuHamil) {
+            return redirect()->route('app.profil')->with('error', 'Data kehamilan tidak ditemukan.');
+        }
+        
+        $validated = $request->validate([
+            'total_skor' => 'required|integer',
+            'kategori_risiko' => 'required|in:KRR,KRT,KRST',
+            'rekomendasi_tempat_bersalin' => 'required|string',
+            'faktor_risiko' => 'array',
+            'catatan' => 'nullable|string',
+        ]);
+
+        // Create skrining
+        $skrining = SkriningRisiko::create([
+            'ibu_hamil_id' => auth()->user()->ibuHamil->id,
+            'tanggal_skrining' => now(),
+            'jenis_skrining' => 'mandiri',
+            'total_skor' => $validated['total_skor'],
+            'kategori_risiko' => $validated['kategori_risiko'],
+            'faktor_risiko' => json_encode($validated['faktor_risiko'] ?? []),
+            'rekomendasi_tempat_bersalin' => $validated['rekomendasi_tempat_bersalin'],
+            'catatan' => $validated['catatan'] ?? null,
+        ]);
+
+        // Generate & save rekomendasi
+        $rekomendasi = RekomendasiSkrining::generateRekomendasi(
+            $validated['total_skor'],
+            $validated['kategori_risiko']
+        );
+
+        RekomendasiSkrining::create([
+            'skrining_risiko_id' => $skrining->id,
+            'kategori_risiko' => $rekomendasi['kategori_risiko'],
+            'total_skor' => $validated['total_skor'],
+            'rekomendasi_umum' => $rekomendasi['rekomendasi_umum'],
+            'rekomendasi_list' => $rekomendasi['rekomendasi_list'],
+            'tempat_bersalin' => $rekomendasi['tempat_bersalin'],
+        ]);
+
+        return redirect()->route('app.kesehatan')->with('success', 'Hasil skrining berhasil disimpan!');
     }
 }

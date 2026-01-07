@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('password');
             $table->string('no_telepon', 15)->nullable();
             $table->text('foto')->nullable();
-            $table->enum('status', ['aktif', 'nonaktif'])->default('aktif');
+            $table->enum('status',  ['active', 'pending', 'inactive'])->default('active');
             $table->rememberToken();
             $table->timestamps();
             $table->softDeletes();

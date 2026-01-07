@@ -100,6 +100,11 @@ class SkriningRisiko extends Model
         return $this->belongsTo(TenagaKesehatan::class);
     }
 
+    public function rekomendasi()
+    {
+        return $this->hasOne(RekomendasiSkrining::class);
+    }
+
     /**
      * Scopes
      */
