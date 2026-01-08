@@ -23,6 +23,31 @@ class ProfilController extends Controller
     }
 
     /**
+     * Update foto profil (separate method)
+     */
+    public function updateFoto(Request $request)
+    {
+        $validated = $request->validate([
+            'foto' => 'required|image|mimes:jpeg,jpg,png|max:2048',
+        ]);
+
+        $user = auth()->user();
+
+        // Delete old photo if exists
+        if ($user->foto) {
+            Storage::disk('public')->delete($user->foto);
+        }
+
+        // Store new photo
+        $path = $request->file('foto')->store('fotos', 'public');
+
+        // Update user
+        $user->update(['foto' => $path]);
+
+        return redirect()->route('app.profil')->with('success', 'Foto profil berhasil diperbarui!');
+    }
+
+    /**
      * Update profil
      */
     public function update(Request $request)

@@ -8,8 +8,8 @@
         <!-- Profile Header Card -->
         <div class="card border-0 shadow-sm mb-3" style="background: linear-gradient(135deg, #ff6b9d 0%, #ff8fab 100%);">
             <div class="card-body text-white text-center py-4">
-                <form method="POST" action="{{ route('app.profil.update') }}" enctype="multipart/form-data" x-show="editMode"
-                    class="d-none">
+                <form method="POST" action="{{ route('app.profil.foto') }}" enctype="multipart/form-data" id="photoForm"
+                    style="display: none;">
                     @csrf
                     @method('PUT')
                     <input type="file" name="foto" accept="image/*" id="foto-input" onchange="this.form.submit()">
@@ -48,7 +48,7 @@
         <div class="card border-0 shadow-sm mb-3">
             <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
                 <strong><i class="fas fa-user me-2"></i>Data Pribadi</strong>
-                <button @click="editMode = !editMode" class="btn btn-sm btn-light">
+                <button @click="editMode = !editMode" class="btn btn-sm btn-light" type="button">
                     <span x-text="editMode ? 'Batal' : 'Edit'"></span>
                 </button>
             </div>
@@ -67,6 +67,12 @@
                             <small class="text-muted d-block">Alamat</small>
                             <strong>{{ $ibuHamil->alamat_lengkap }}</strong>
                         </div>
+                        @if ($ibuHamil->rt || $ibuHamil->rw)
+                            <div class="mb-2">
+                                <small class="text-muted d-block">RT/RW</small>
+                                <strong>{{ $ibuHamil->rt ?? '-' }} / {{ $ibuHamil->rw ?? '-' }}</strong>
+                            </div>
+                        @endif
                     @endif
                 </div>
 
@@ -159,7 +165,7 @@
         <div class="card border-0 shadow-sm mb-3">
             <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
                 <strong><i class="fas fa-lock me-2"></i>Keamanan</strong>
-                <button @click="editPassword = !editPassword" class="btn btn-sm btn-light">
+                <button @click="editPassword = !editPassword" class="btn btn-sm btn-light" type="button">
                     <span x-text="editPassword ? 'Batal' : 'Ubah Password'"></span>
                 </button>
             </div>

@@ -13,16 +13,16 @@
                 <div class="d-flex align-items-center justify-content-between mb-3">
                     <div>
                         <p class="mb-1 opacity-75" style="font-size: 12px;">Selamat datang,</p>
-                        <h3 class="mb-0 fw-bold">{{ auth()->user()->nama }}</h3>
+                        <h3 class="mb-0 fw-bold">{{ auth()->user()->name }}</h3>
                     </div>
                     @if ($ibuHamil && $ibuHamil->foto_kehamilan)
                         <img src="{{ Storage::url($ibuHamil->foto_kehamilan) }}" alt="Foto"
                             class="rounded-circle border border-3 border-white"
                             style="width: 60px; height: 60px; object-fit: cover;">
                     @else
-                        <div class="rounded-circle bg-white bg-opacity-25 d-flex align-items-center justify-center"
+                        <div class="rounded-circle bg-white bg-opacity-25 d-flex align-items-center justify-content-center"
                             style="width: 60px; height: 60px;">
-                            <i class="fas fa-user-circle fa-2x"></i>
+                            <i class="fas fa-user-circle fa-3x"></i>
                         </div>
                     @endif
                 </div>

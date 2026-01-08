@@ -55,6 +55,7 @@ Route::middleware(['auth', \App\Http\Middleware\EnsureIbuHamilActive::class])
         // Profil
         Route::get('profil', [ProfilController::class, 'index'])->name('profil');
         Route::put('profil', [ProfilController::class, 'update'])->name('profil.update');
+        Route::put('profil/foto', [ProfilController::class, 'updateFoto'])->name('profil.foto');
         Route::post('profil/password', [ProfilController::class, 'changePassword'])->name('profil.password');
 
         // Pengaturan
