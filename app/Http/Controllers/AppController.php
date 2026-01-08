@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Models\IbuHamil;
 use App\Models\Puskesmas;
+use App\Models\Artikel;
+use App\Models\VideoEdukasi;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -13,6 +15,31 @@ use Spatie\Permission\Models\Role;
 
 class AppController extends Controller
 {
+    /**
+     * Show public landing page (NEW - for guest users)
+     */
+    public function home()
+    {
+        // If already logged in, redirect to beranda
+        if (auth()->check() && auth()->user()->hasRole('ibu_hamil')) {
+            return redirect()->route('app.beranda');
+        }
+
+        // Get latest articles (3 items)
+        $artikels = Artikel::where('status', 'published')
+            ->orderBy('published_at', 'desc')
+            ->take(3)
+            ->get();
+
+        // Get latest videos (3 items)
+        $videos = VideoEdukasi::where('status', 'published')
+            ->orderBy('published_at', 'desc')
+            ->take(3)
+            ->get();
+
+        return view('public.beranda-public', compact('artikels', 'videos'));
+    }
+
     /**
      * Show login page
      */
@@ -144,6 +171,6 @@ class AppController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect()->route('app.login');
+        return redirect()->route('app.home'); // Redirect to public home instead of login
     }
 }

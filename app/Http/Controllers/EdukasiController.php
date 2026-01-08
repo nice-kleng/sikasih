@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 class EdukasiController extends Controller
 {
     /**
-     * Show edukasi page
+     * Show edukasi page (for authenticated users)
      */
     public function index(Request $request)
     {
@@ -73,7 +73,44 @@ class EdukasiController extends Controller
     }
 
     /**
-     * Show artikel detail
+     * Show artikel list (PUBLIC ACCESS - no auth required)
+     */
+    public function artikelIndex(Request $request)
+    {
+        $search = $request->get('search');
+        $kategori = $request->get('kategori');
+
+        $query = Artikel::where('status', 'published')
+            ->orderBy('published_at', 'desc');
+
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('judul', 'like', "%{$search}%")
+                    ->orWhere('konten', 'like', "%{$search}%");
+            });
+        }
+
+        if ($kategori) {
+            $query->where('kategori', $kategori);
+        }
+
+        $artikels = $query->paginate(10);
+
+        $kategoris = [
+            '' => 'Semua',
+            'nutrisi' => 'Nutrisi',
+            'olahraga' => 'Olahraga',
+            'kesehatan_mental' => 'Kesehatan Mental',
+            'perkembangan_janin' => 'Perkembangan Janin',
+            'persiapan_persalinan' => 'Persiapan Persalinan',
+            'tips_kehamilan' => 'Tips Kehamilan',
+        ];
+
+        return view('public.artikel', compact('artikels', 'kategoris', 'search', 'kategori'));
+    }
+
+    /**
+     * Show artikel detail (PUBLIC ACCESS - no auth required)
      */
     public function showArtikel($slug)
     {
@@ -96,7 +133,44 @@ class EdukasiController extends Controller
     }
 
     /**
-     * Show video detail
+     * Show video list (PUBLIC ACCESS - no auth required)
+     */
+    public function videoIndex(Request $request)
+    {
+        $search = $request->get('search');
+        $kategori = $request->get('kategori');
+
+        $query = VideoEdukasi::where('status', 'published')
+            ->orderBy('published_at', 'desc');
+
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('judul', 'like', "%{$search}%")
+                    ->orWhere('deskripsi', 'like', "%{$search}%");
+            });
+        }
+
+        if ($kategori) {
+            $query->where('kategori', $kategori);
+        }
+
+        $videos = $query->paginate(10);
+
+        $kategoris = [
+            '' => 'Semua',
+            'nutrisi' => 'Nutrisi',
+            'olahraga' => 'Olahraga',
+            'senam_hamil' => 'Senam Hamil',
+            'perkembangan_janin' => 'Perkembangan Janin',
+            'persiapan_persalinan' => 'Persiapan Persalinan',
+            'tips_kehamilan' => 'Tips Kehamilan',
+        ];
+
+        return view('public.video', compact('videos', 'kategoris', 'search', 'kategori'));
+    }
+
+    /**
+     * Show video detail (PUBLIC ACCESS - no auth required)
      */
     public function showVideo($slug)
     {

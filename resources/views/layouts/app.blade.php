@@ -418,32 +418,55 @@
     </main>
 
     <!-- Bottom Navigation -->
-    <nav class="bottom-nav">
-        <a href="{{ route('app.beranda') }}" class="nav-item {{ request()->routeIs('app.beranda') ? 'active' : '' }}">
-            <i class="fas fa-home"></i>
-            <span>Beranda</span>
-        </a>
-        <a href="{{ route('app.kesehatan') }}"
-            class="nav-item {{ request()->routeIs('app.kesehatan*') || request()->routeIs('app.skrining*') ? 'active' : '' }}">
-            <i class="fas fa-heartbeat"></i>
-            <span>Kesehatan</span>
-        </a>
-        <a href="{{ route('app.edukasi') }}"
-            class="nav-item {{ request()->routeIs('app.edukasi*') || request()->routeIs('app.artikel*') || request()->routeIs('app.video*') ? 'active' : '' }}">
-            <i class="fas fa-book-open"></i>
-            <span>Edukasi</span>
-        </a>
-        <a href="{{ route('app.notifikasi') }}"
-            class="nav-item {{ request()->routeIs('app.notifikasi') ? 'active' : '' }}">
-            <i class="fas fa-bell"></i>
-            <span>Notifikasi</span>
-        </a>
-        <a href="{{ route('app.profil') }}"
-            class="nav-item {{ request()->routeIs('app.profil') || request()->routeIs('app.pengaturan') ? 'active' : '' }}">
-            <i class="fas fa-user"></i>
-            <span>Profil</span>
-        </a>
-    </nav>
+    <div class="bottom-nav">
+        @guest
+            {{-- Guest Navigation --}}
+            <a href="{{ route('app.home') }}" class="nav-item {{ request()->routeIs('app.home') ? 'active' : '' }}">
+                <i class="fas fa-home"></i>
+                <span>Beranda</span>
+            </a>
+            <a href="{{ route('app.artikel.index') }}"
+                class="nav-item {{ request()->routeIs('app.artikel.*') ? 'active' : '' }}">
+                <i class="fas fa-newspaper"></i>
+                <span>Artikel</span>
+            </a>
+            <a href="{{ route('app.video.index') }}"
+                class="nav-item {{ request()->routeIs('app.video.*') ? 'active' : '' }}">
+                <i class="fas fa-play-circle"></i>
+                <span>Video</span>
+            </a>
+            <a href="{{ route('app.login') }}" class="nav-item {{ request()->routeIs('app.login') ? 'active' : '' }}">
+                <i class="fas fa-sign-in-alt"></i>
+                <span>Masuk</span>
+            </a>
+        @else
+            {{-- Authenticated Navigation --}}
+            <a href="{{ route('app.beranda') }}" class="nav-item {{ request()->routeIs('app.beranda') ? 'active' : '' }}">
+                <i class="fas fa-home"></i>
+                <span>Beranda</span>
+            </a>
+            <a href="{{ route('app.kesehatan') }}"
+                class="nav-item {{ request()->routeIs('app.kesehatan', 'app.skrining.*') ? 'active' : '' }}">
+                <i class="fas fa-heartbeat"></i>
+                <span>Kesehatan</span>
+            </a>
+            <a href="{{ route('app.edukasi') }}"
+                class="nav-item {{ request()->routeIs('app.edukasi', 'app.artikel.*', 'app.video.*') ? 'active' : '' }}">
+                <i class="fas fa-book-open"></i>
+                <span>Edukasi</span>
+            </a>
+            <a href="{{ route('app.notifikasi') }}"
+                class="nav-item {{ request()->routeIs('app.notifikasi') ? 'active' : '' }}">
+                <i class="fas fa-bell"></i>
+                <span>Notifikasi</span>
+            </a>
+            <a href="{{ route('app.profil') }}"
+                class="nav-item {{ request()->routeIs('app.profil', 'app.pengaturan') ? 'active' : '' }}">
+                <i class="fas fa-user"></i>
+                <span>Profil</span>
+            </a>
+        @endguest
+    </div>
 
     <!-- Bootstrap 5 JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

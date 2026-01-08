@@ -11,18 +11,36 @@ use Illuminate\Support\Facades\Route;
 |--------------------------------------------------------------------------
 | Web Routes
 |--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider and all of them will
-| be assigned to the "web" middleware group. Make something great!
-|
 */
 
 Route::get('/', function () {
     return view('welcome');
 });
 
-// Guest routes (login, register)
+/*
+|--------------------------------------------------------------------------
+| PUBLIC ROUTES (No Authentication Required)
+|--------------------------------------------------------------------------
+*/
+
+Route::prefix('app')->name('app.')->group(function () {
+
+    // Public Landing Page
+    Route::get('/', [AppController::class, 'home'])->name('home');
+
+    // Public Artikel & Video (accessible without login)
+    Route::get('artikel', [EdukasiController::class, 'artikelIndex'])->name('artikel.index');
+    Route::get('artikel/{slug}', [EdukasiController::class, 'showArtikel'])->name('artikel.show');
+    Route::get('video', [EdukasiController::class, 'videoIndex'])->name('video.index');
+    Route::get('video/{slug}', [EdukasiController::class, 'showVideo'])->name('video.show');
+});
+
+/*
+|--------------------------------------------------------------------------
+| GUEST ROUTES (Login & Register)
+|--------------------------------------------------------------------------
+*/
+
 Route::middleware('guest')->prefix('app')->name('app.')->group(function () {
     Route::get('login', [AppController::class, 'login'])->name('login');
     Route::post('login', [AppController::class, 'loginPost'])->name('login.post');
@@ -30,7 +48,12 @@ Route::middleware('guest')->prefix('app')->name('app.')->group(function () {
     Route::post('register', [AppController::class, 'registerPost'])->name('register.post');
 });
 
-// Authenticated routes
+/*
+|--------------------------------------------------------------------------
+| AUTHENTICATED ROUTES (Need Login)
+|--------------------------------------------------------------------------
+*/
+
 Route::middleware(['auth', \App\Http\Middleware\EnsureIbuHamilActive::class])
     ->prefix('app')
     ->name('app.')
@@ -42,15 +65,13 @@ Route::middleware(['auth', \App\Http\Middleware\EnsureIbuHamilActive::class])
         // Beranda (Dashboard)
         Route::get('beranda', [BerandaController::class, 'index'])->name('beranda');
 
-        // Kesehatan (Pemeriksaan + Skrining)
+        // Kesehatan (Pemeriksaan + Skrining + Lab)
         Route::get('kesehatan', [KesehatanController::class, 'index'])->name('kesehatan');
         Route::get('skrining/create', [KesehatanController::class, 'createSkrining'])->name('skrining.create');
         Route::post('skrining', [KesehatanController::class, 'storeSkrining'])->name('skrining.store');
 
-        // Edukasi (Artikel + Video)
+        // Edukasi (For authenticated users - shows personalized content)
         Route::get('edukasi', [EdukasiController::class, 'index'])->name('edukasi');
-        Route::get('artikel/{slug}', [EdukasiController::class, 'showArtikel'])->name('artikel.show');
-        Route::get('video/{slug}', [EdukasiController::class, 'showVideo'])->name('video.show');
 
         // Profil
         Route::get('profil', [ProfilController::class, 'index'])->name('profil');
@@ -66,16 +87,21 @@ Route::middleware(['auth', \App\Http\Middleware\EnsureIbuHamilActive::class])
         Route::get('notifikasi', [\App\Http\Controllers\NotifikasiController::class, 'index'])->name('notifikasi');
     });
 
-// PWA Manifest & Service Worker
+/*
+|--------------------------------------------------------------------------
+| PWA Manifest & Service Worker
+|--------------------------------------------------------------------------
+*/
+
 Route::get('manifest.json', function () {
     return response()->json([
         'name' => 'SIKASIH - Sistem Informasi Kesehatan Ibu Hamil',
         'short_name' => 'SIKASIH',
         'description' => 'Aplikasi kesehatan untuk ibu hamil',
-        'start_url' => '/app/beranda',
+        'start_url' => '/app', // Changed to public landing
         'display' => 'standalone',
         'background_color' => '#ffffff',
-        'theme_color' => '#EC4899',
+        'theme_color' => '#ff6b9d',
         'orientation' => 'portrait-primary',
         'icons' => [
             [

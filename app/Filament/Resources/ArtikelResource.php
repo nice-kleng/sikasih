@@ -75,7 +75,7 @@ class ArtikelResource extends Resource implements HasShieldPermissions
                             ->required()
                             ->searchable(),
                         Forms\Components\Select::make('penulis_id')
-                            ->relationship('penulis', 'nama')
+                            ->relationship('penulis', 'name')
                             ->label('Penulis')
                             ->searchable()
                             ->preload()
